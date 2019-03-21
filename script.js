@@ -116,16 +116,20 @@ const config = {
   }
   
   function update(){
-    if (cursors.left.isDown){
+    if (cursors.left.isDown && player.body.onFloor()){
       player.body.setVelocityX(-200);
       player.anims.play('walk',true);
       player.flipX = true;
-      
-    } else if (cursors.right.isDown){
+    } else if (cursors.left.isDown){
+      player.body.setVelocityX(-200);
+      player.flipX = true;
+    } else if (cursors.right.isDown && player.body.onFloor()){
       player.body.setVelocityX(200);
       player.anims.play('walk',true);
       player.flipX = false;
-      
+    } else if (cursors.right.isDown){
+      player.body.setVelocityX(200);
+      player.flipX = false;
     } else if (cursors.down.isDown){
       player.anims.play('crouch',true);
     } else{
