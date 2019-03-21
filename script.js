@@ -6,7 +6,7 @@ const config = {
       default: 'arcade',
       arcade: {
         gravity: { y:300 },
-        debug: false
+        debug: true
       }
     },
     scene: {
@@ -96,20 +96,16 @@ const config = {
       repeat: -1
     })
   
-  
+      // set up cursor
+      cursors = this.input.keyboard.createCursorKeys();
   
     // collider between player and ground
-     function digTopDirt(player, topLayerGroup) {
-      if (cursors.shift.isDown && player.body.onFloor()){
-       topLayerGroup.disableBody(this, this);
+    function digDirt(player, group) {
+      if (cursors.shift.isDown){
+      group.disableBody(this, this);
       }
     }
-    function digDirt(player, dirtLayerGroup) {
-      if (cursors.shift.isDown && player.body.onFloor()){
-       dirtLayerGroup.disableBody(this, this);
-      }
-    }
-    this.physics.add.collider(player, topLayerGroup, digTopDirt);
+    this.physics.add.collider(player, topLayerGroup, digDirt);
     this.physics.add.collider(player, dirtLayerGroup, digDirt);
   
    
