@@ -115,10 +115,6 @@ const config = {
     // set up cursor
     cursors = this.input.keyboard.createCursorKeys();
 
-     
-    // set up cursor
-    cursors = this.input.keyboard.createCursorKeys();
-   
     // collider function between player and ground
     function digDirt(player, group) {
       if (cursors.shift.isDown){
