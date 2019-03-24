@@ -20,10 +20,7 @@ const config = {
   
   const game = new Phaser.Game(config);
   const gameWidth = game.config.width, gameHeight = game.config.height;
-  let generateRandom = (min,max) =>{
-    return Math.floor(Math.random() * (max + min) + min);
-  };
-  
+
   function preload(){
     this.load.audio('coin', 'assets/sounds/coin.wav');
     this.load.audio('bgm', 'assets/sounds/bgm.mp3');
