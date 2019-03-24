@@ -133,7 +133,7 @@ const config = {
       frames: this.anims.generateFrameNumbers('man', { start:14, end: 21 }),
       frameRate: 10,
       repeat: -1
-    })
+    });
   
     // camera views
     this.cameras.main.setViewport(0,0,490,630);
@@ -168,7 +168,7 @@ const config = {
       coinsLeft--;
       scoreText.setText('Score: ' + score);
       coinsText.setText('Coins Left:' + coinsLeft);
-    }
+    };
 
     // add colliders and overlaps
     this.physics.add.collider(player, topLayerGroup, digDirt);
@@ -212,7 +212,7 @@ const config = {
     }
     if (!player.body.onFloor()){
       player.anims.play('jump',true);
-    };
+    }
     
   
   }
