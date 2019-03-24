@@ -16,7 +16,7 @@ const config = {
     }
   };
   
-  let player, topLayer, tiles, groundObj, topObj, coinObj, coins, score = 0, coinsLeft = 0, coinQuantity;
+  let player, bottomLayerGroup, sideSprite, topLayer, tiles, groundObj, topObj, coinObj, bottomObj, coins, score = 0, coinsLeft = 0, coinQuantity;
   
   const game = new Phaser.Game(config);
   const gameWidth = game.config.width, gameHeight = game.config.height;
@@ -26,7 +26,9 @@ const config = {
   
   function preload(){
     this.load.audio('coin', 'assets/sounds/coin.wav');
-    this.load.image('gradient', 'assets/retrogradient.png');
+    this.load.audio('bgm', 'assets/sounds/bgm.mp3');
+    this.load.image('bg', 'assets/backgroundImage.png');
+    this.load.image('side','assets/backgroundImage.png');
     this.load.image('coin','assets/sprites/star-coin.png');
     this.load.spritesheet('man', 'assets/sprites/adventurer-Sheet.png', {frameWidth: 50, frameHeight: 37 });
     this.load.spritesheet('tiles', 'assets/sprites/tiles.png',{frameWidth: 70, frameHeight: 70 });
@@ -34,10 +36,19 @@ const config = {
   
   
   function create(){
+    // add background music
+    let bgm = this.sound.add('bgm', {loop: true});
+    bgm.play();
 
     // add background image
-    this.add.image(224,300,'gradient');
+    this.add.image(735,630,'bg');
    
+    // add side sprites for bounding
+    sideSprite = this.physics.add.staticGroup();
+    sideSprite.create(-735,630,'side');
+    sideSprite.create(2205,630,'side');
+
+    // create sprite groups function
     let createSpriteGroup = (x,y,sprite,frame,objectType,objectGroup, height=false)=>{
       objectGroup = objectType.create(x,y,sprite,frame);
       objectGroup.width = 35; 
@@ -49,7 +60,7 @@ const config = {
       return objectGroup;
     };
    
-   
+    bottomLayerGroup = this.physics.add.staticGroup();
     topLayerGroup = this.physics.add.staticGroup();
     dirtLayerGroup = this.physics.add.staticGroup();
         
@@ -66,25 +77,33 @@ const config = {
     Phaser.Actions.RandomRectangle(coinGroup.getChildren(), rect);
 
     // draw top layer
-    for (let x = 35; x < 490; x+=35)
+    for (let x = 35; x < 1470; x+=35)
     {
       createSpriteGroup(x, 210, 'tiles', [2], topLayerGroup, 'topObj');
     }
 
-    // generate ground layers  
-    for (let i = 0, y = 245; i < 11; i++)
+    // generate dirt layers  
+    for (let i = 0, y = 245; i < 28; i++)
     {
-      for (let i = 0, x = 0; i < 14; i++)
+      for (let j = 0, x = 0; j < 42; j++)
       {
         createSpriteGroup(x,y,'tiles',[4],dirtLayerGroup,'groundObj');
         x+=35;
       }
       y+=35;
     }
+
+    // generate lower ground tiles
+    for (let j = 0, x = 0; j < 42; j++)
+        {
+          createSpriteGroup(x,1225,'tiles',[14],bottomLayerGroup,'bottomObj');
+          x+=70;
+        }
+
    
     // make the player
-    player = this.physics.add.sprite(10,140,'man');
-    player.setCollideWorldBounds(true).setScale(2).setSize(15,15).setOffset(15,20);
+    player = this.physics.add.sprite(45,140,'man');
+    player.setCollideWorldBounds(false).setScale(2).setSize(15,15).setOffset(15,20);
   
     // player animations
     this.anims.create({
@@ -116,6 +135,11 @@ const config = {
       repeat: -1
     })
   
+    // camera views
+    this.cameras.main.setViewport(0,0,490,630);
+    this.cameras.main.startFollow(player);
+    this.cameras.main.setBounds(0,0,1470,1260);
+
     // set up cursor
     cursors = this.input.keyboard.createCursorKeys();
 
@@ -135,8 +159,7 @@ const config = {
         }    
       };
 
-    
-    
+        
     // collect coin function
     let collectCoin = (player,group) => {
       group.disableBody(this,this);
@@ -150,6 +173,8 @@ const config = {
     // add colliders and overlaps
     this.physics.add.collider(player, topLayerGroup, digDirt);
     this.physics.add.collider(player, dirtLayerGroup, digDirt);
+    this.physics.add.collider(player, sideSprite);
+    this.physics.add.collider(player, bottomLayerGroup);
     this.physics.add.overlap(player, coinGroup, collectCoin, null, this);
 
     // scoring updates
