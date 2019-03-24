@@ -121,10 +121,21 @@ const config = {
 
     // collider function between player and ground
     let digDirt = (player, group) => {
+      let touching = group.body.touching;
       if (cursors.shift.isDown){
-      group.disableBody(this, this);
-      }
-    }
+         if (touching.left === true && cursors.right.isDown) {
+            group.disableBody(this,this);
+         } else if (touching.up === true && cursors.down.isDown){
+            group.disableBody(this,this);
+         } else if (touching.right === true && cursors.left.isDown){
+            group.disableBody(this,this);
+         } else if (touching.down === true && cursors.up.isDown){
+            group.disableBody(this,this);
+         }
+        }    
+      };
+
+    
     
     // collect coin function
     let collectCoin = (player,group) => {
