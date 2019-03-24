@@ -16,7 +16,7 @@ const config = {
     }
   };
   
-  let player, topLayer, tiles, groundObj, topObj, coinObj, coins, score;
+  let player, topLayer, tiles, groundObj, topObj, coinObj, coins, score = 0, coinsLeft = 0, coinQuantity;
   
   const game = new Phaser.Game(config);
   const gameWidth = game.config.width, gameHeight = game.config.height;
@@ -25,6 +25,7 @@ const config = {
   };
   
   function preload(){
+    this.load.audio('coin', 'assets/sounds/coin.wav');
     this.load.image('gradient', 'assets/retrogradient.png');
     this.load.image('coin','assets/sprites/star-coin.png');
     this.load.spritesheet('man', 'assets/sprites/adventurer-Sheet.png', {frameWidth: 50, frameHeight: 37 });
@@ -33,7 +34,7 @@ const config = {
   
   
   function create(){
-    
+
     // add background image
     this.add.image(224,300,'gradient');
    
@@ -51,15 +52,18 @@ const config = {
    
     topLayerGroup = this.physics.add.staticGroup();
     dirtLayerGroup = this.physics.add.staticGroup();
-    coinGroup = this.physics.add.staticGroup();
-     
+        
     // generate coins 
-    for (let i = 0; i < 10; i++)
-    {
-      let x = generateRandom(0,490);
-      let y = generateRandom(210,630);
-      createSpriteGroup(x,y,'coin',[1],coinGroup, 'coinObj', true);
-    }
+    coinQuantity = 10;
+    coinGroup = this.physics.add.group({
+      key: 'coin',
+      allowGravity: false,
+      frameQuantity: coinQuantity
+    }); 
+    coinsLeft = coinQuantity;
+
+    let rect = new Phaser.Geom.Rectangle(0,210,1470,1050);
+    Phaser.Actions.RandomRectangle(coinGroup.getChildren(), rect);
 
     // draw top layer
     for (let x = 35; x < 490; x+=35)
@@ -116,17 +120,33 @@ const config = {
     cursors = this.input.keyboard.createCursorKeys();
 
     // collider function between player and ground
-    function digDirt(player, group) {
+    let digDirt = (player, group) => {
       if (cursors.shift.isDown){
       group.disableBody(this, this);
       }
     }
     
-    // add colliders
+    // collect coin function
+    let collectCoin = (player,group) => {
+      group.disableBody(this,this);
+      this.sound.play('coin');
+      score += 10;
+      coinsLeft--;
+      scoreText.setText('Score: ' + score);
+      coinsText.setText('Coins Left:' + coinsLeft);
+    }
+
+    // add colliders and overlaps
     this.physics.add.collider(player, topLayerGroup, digDirt);
     this.physics.add.collider(player, dirtLayerGroup, digDirt);
+    this.physics.add.overlap(player, coinGroup, collectCoin, null, this);
 
-  
+    // scoring updates
+    scoreText = this.add.text(16, 10, 'Score: 0', { fontFamily: 'Comic Sans MS', fontSize: '32px', fill: '#fff'});
+    scoreText.setScrollFactor(0);
+    coinsText = this.add.text( 16,40, 'Coins Left: 10', { fontFamily: 'Comic Sans MS', fontSize: '32px', fill: '#fff'});
+    coinsText.setScrollFactor(0);
+
   }
   
   function update(){
