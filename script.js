@@ -16,7 +16,7 @@ const config = {
     }
   };
   
-  let player, bottomLayerGroup, sideSprite, topLayer, tiles, groundObj, topObj, coinObj, bottomObj, coins, score = 0, coinsLeft = 0, coinQuantity;
+  let player, bottomLayerGroup, sideSprite, topLayer, tiles, groundObj, topObj, coinObj, bottomObj, coins, score = 0, coinsLeft = 0, coinQuantity, timer, elapsed= 0, endText, restartText, counter;
   
   const game = new Phaser.Game(config);
   const gameWidth = game.config.width, gameHeight = game.config.height;
@@ -40,6 +40,14 @@ const config = {
     // add background image
     this.add.image(735,630,'bg');
    
+    // create timer
+    timer = this.time.addEvent({
+      delay: 60000,
+      // callback: endGame(),
+      // callbackScope: this,
+      loop: false
+    });
+
     // add side sprites for bounding
     sideSprite = this.physics.add.staticGroup();
     sideSprite.create(-735,630,'side');
@@ -174,15 +182,18 @@ const config = {
     this.physics.add.collider(player, bottomLayerGroup);
     this.physics.add.overlap(player, coinGroup, collectCoin, null, this);
 
-    // scoring updates
-    scoreText = this.add.text(16, 10, 'Score: 0', { fontFamily: 'Comic Sans MS', fontSize: '32px', fill: '#fff'});
+    // screen text
+    scoreText = this.add.text(16, 10, 'Score: 0', { fontFamily: 'verdana', fontSize: '18px', fill: '#fff'});
     scoreText.setScrollFactor(0);
-    coinsText = this.add.text( 16,40, 'Coins Left: 10', { fontFamily: 'Comic Sans MS', fontSize: '32px', fill: '#fff'});
+    coinsText = this.add.text( 16,40, 'Coins Left: '+coinsLeft, { fontFamily: 'verdana', fontSize: '18px', fill: '#fff'});
     coinsText.setScrollFactor(0);
+    timerText = this.add.text( 16,70,'Time Remaining: ' + elapsed, {fontFamily: 'verdana', fontSize: '18px', fill: '#fff'});
+    timerText.setScrollFactor(0);
 
   }
   
   function update(){
+    // controls
     if (cursors.left.isDown && player.body.onFloor()){
       player.body.setVelocityX(-200);
       player.anims.play('walk',true);
@@ -210,8 +221,30 @@ const config = {
     if (!player.body.onFloor()){
       player.anims.play('jump',true);
     }
-    
+   
+    // timer
+    counter = timer.getElapsedSeconds().toString().substr(0,2);
+    timerText.setText('Time Remaining: ' + (60 - counter));
   
+    if (counter == '60' || coinsLeft == 0){
+      this.physics.pause();
+      player.alpha = 0;
+      endText = this.add.text(16, 315, 'GAME OVER', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
+      endText.setScrollFactor(0);
+      if (coinsLeft == 0){
+            endText = this.add.text(16, 315, 'GAME OVER: YOU WIN!!', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
+      endText.setScrollFactor(0);
+      }
+      
+      restartText = this.add.text(16, 380, 'click to restart', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
+      restartText.setScrollFactor(0).setInteractive();
+      restartText.on('pointerup', () => {
+    
+        this.scene.restart();
+      });
+    }
+
+
   }
   
   
