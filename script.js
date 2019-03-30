@@ -78,7 +78,7 @@ const config = {
     }); 
     coinsLeft = coinQuantity;
 
-    let rect = new Phaser.Geom.Rectangle(0,210,1470,1050);
+    let rect = new Phaser.Geom.Rectangle(0,210,1470,980);
     Phaser.Actions.RandomRectangle(coinGroup.getChildren(), rect);
 
     // draw top layer
@@ -185,7 +185,7 @@ const config = {
     // screen text
     scoreText = this.add.text(16, 10, 'Score: 0', { fontFamily: 'verdana', fontSize: '18px', fill: '#fff'});
     scoreText.setScrollFactor(0);
-    coinsText = this.add.text( 16,40, 'Coins Left: '+coinsLeft, { fontFamily: 'verdana', fontSize: '18px', fill: '#fff'});
+    coinsText = this.add.text( 16,40, 'Coins Left: '+ coinsLeft, { fontFamily: 'verdana', fontSize: '18px', fill: '#fff'});
     coinsText.setScrollFactor(0);
     timerText = this.add.text( 16,70,'Time Remaining: ' + elapsed, {fontFamily: 'verdana', fontSize: '18px', fill: '#fff'});
     timerText.setScrollFactor(0);
@@ -221,7 +221,7 @@ const config = {
     if (!player.body.onFloor()){
       player.anims.play('jump',true);
     }
-   
+
     // timer
     counter = timer.getElapsedSeconds().toString().substr(0,2);
     timerText.setText('Time Remaining: ' + (60 - counter));
