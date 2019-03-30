@@ -172,7 +172,7 @@ const config = {
       score += 10;
       coinsLeft--;
       scoreText.setText('Score: ' + score);
-      coinsText.setText('Coins Left:' + coinsLeft);
+      coinsText.setText('Coins Left: ' + coinsLeft);
     };
 
     // add colliders and overlaps
