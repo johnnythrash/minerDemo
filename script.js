@@ -16,7 +16,7 @@ const config = {
     }
   };
   
-  let player, bottomLayerGroup, sideSprite, topLayer, tiles, groundObj, topObj, coinObj, bottomObj, coins, score = 0, coinsLeft = 0, coinQuantity, timer, elapsed= 0, endText, restartText, counter;
+  let player, bottomLayerGroup, sideSprite, topLayer, tiles, groundObj, topObj, coinObj, bottomObj, coins, score = 0, coinsLeft = 0, coinQuantity, timer, elapsed= 0, endText, restartText, counter,bgm;
   
   const game = new Phaser.Game(config);
   const gameWidth = game.config.width, gameHeight = game.config.height;
@@ -34,7 +34,7 @@ const config = {
   
   function create(){
     // add background music
-    let bgm = this.sound.add('bgm', {loop: true});
+    bgm = this.sound.add('bgm', {loop: true});
     bgm.play();
 
     // add background image
@@ -227,6 +227,7 @@ const config = {
     timerText.setText('Time Remaining: ' + (60 - counter));
   
     if (counter == '60' || coinsLeft == 0){
+      bgm.stop();
       this.physics.pause();
       player.alpha = 0;
       endText = this.add.text(16, 315, 'GAME OVER', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
