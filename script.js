@@ -107,7 +107,7 @@ const config = {
         let index = Phaser.Math.RND.between(0, max);
         let x = dirtLayerGroup.getChildren()[index].x+17.5;
         let y = dirtLayerGroup.getChildren()[index].y+17.5;
-        let newObj = coinGroup.create(x,y,'coin', [0]);
+        let newObj = coinGroup.create(x,y,'coin');
         newObj.setDepth(0);
           }
     }
