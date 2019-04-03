@@ -239,14 +239,14 @@ const config = {
       this.physics.pause();
       player.alpha = 0;
       endText = this.add.text(16, 315, 'GAME OVER', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
-      endText.setScrollFactor(0);
+      endText.setScrollFactor(0).setDepth(2);
       if (coinsLeft == 0){
             endText = this.add.text(16, 315, 'GAME OVER: YOU WIN!!', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
-      endText.setScrollFactor(0);
+      endText.setScrollFactor(0).setDepth(2);
       }
       
       restartText = this.add.text(16, 380, 'click to restart', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
-      restartText.setScrollFactor(0).setInteractive();
+      restartText.setScrollFactor(0).setDepth(2).setInteractive();
       restartText.on('pointerup', () => {
     
         this.scene.restart();
