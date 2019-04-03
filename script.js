@@ -71,15 +71,21 @@ const config = {
         
     // generate coins 
     coinQuantity = 10;
-    coinGroup = this.physics.add.group({
+    /*coinGroup = this.physics.add.group({
       key: 'coin',
       allowGravity: false,
       frameQuantity: coinQuantity
-    }); 
+    });*/ 
     coinsLeft = coinQuantity;
 
-    let rect = new Phaser.Geom.Rectangle(0,210,1470,980);
-    Phaser.Actions.RandomRectangle(coinGroup.getChildren(), rect);
+    coinGroup = this.physics.add.staticGroup();
+
+
+   // let rect = new Phaser.Geom.Rectangle(0,140,1470,980);
+   //var g1 = this.add.grid(0,175,1470,980,35,35,0xff0000,0.5,0x00b9f2,0.5).setOrigin(0,0); //TODO Align grid with ground tiles
+    //TODO Align coins with grid
+   //Phaser.Actions.RandomRectangle(coinGroup.getChildren(), rect);
+   // Phaser.Actions.GridAlign(coinGroup.getChildren(), g1);
 
     // draw top layer
     for (let x = 35; x < 1470; x+=35)
@@ -92,7 +98,7 @@ const config = {
     {
       for (let j = 0, x = 0; j < 42; j++)
       {
-        createSpriteGroup(x,y,'tiles',[4],dirtLayerGroup,'groundObj');
+       createSpriteGroup(x,y,'tiles',[4],dirtLayerGroup,'groundObj');
         x+=35;
       }
       y+=35;
@@ -104,8 +110,28 @@ const config = {
           createSpriteGroup(x,1225,'tiles',[14],bottomLayerGroup,'bottomObj');
           x+=70;
         }
-
-   
+        // for (let i = 0; i < coinQuantity; i++){
+        //   let x = Phaser.Math.RND.between(0,294)*5;
+        //   let y = Phaser.Math.RND.between(35,196)*5;
+        // var newObj = coinGroup.create(x,y,'coin',[0]);
+        // }
+     //   console.log(dirtLayerGroup.getChildren()[3].x, dirtLayerGroup.getChildren()[3].y);
+    
+      function generateCoins(coinQuantity){ 
+        let max = dirtLayerGroup.getChildren().length;
+        
+        for (let x = 0; x < coinQuantity; x++){
+          let index = Phaser.Math.RND.between(0, max);
+          let x = dirtLayerGroup.getChildren()[index].x+17.5;
+          let y = dirtLayerGroup.getChildren()[index].y+17.5;
+          let newObj = coinGroup.create(x,y,'coin', [0]);
+          
+          console.log(newObj);
+        }
+      }
+      generateCoins(coinQuantity);
+    
+    
     // make the player
     player = this.physics.add.sprite(45,140,'man');
     player.setCollideWorldBounds(false).setScale(2).setSize(15,15).setOffset(15,20);
