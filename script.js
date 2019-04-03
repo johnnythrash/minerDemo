@@ -19,6 +19,7 @@ const config = {
   };
   
   let player, bottomLayerGroup, sideSprite, topLayer, tiles, groundObj, topObj, coinObj, bottomObj, coins, score = 0, coinsLeft = 0, coinQuantity, timer, elapsed= 0, endText, restartText, counter,bgm;
+  let ctrl, xKey, distToCoin;
   
   const game = new Phaser.Game(config);
   const gameWidth = game.config.width, gameHeight = game.config.height;
@@ -33,10 +34,11 @@ const config = {
     this.load.spritesheet('tiles', 'assets/sprites/tiles.png',{frameWidth: 70, frameHeight: 70 });
   }
   
-  
+ 
   function create(){
     // keyboard listeners
-    let ctrl = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL);
+    ctrl = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL);
+    xKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
     // add background music
     bgm = this.sound.add('bgm', {loop: true});
     bgm.play();
@@ -117,6 +119,24 @@ const config = {
     }
     generateCoins(coinQuantity);
     
+    // ping for coins
+    distToCoin = (x,y,distance) => {
+      let coins = coinGroup.getChildren();
+      let dirt = dirtLayerGroup.getChildren();
+      for (let i = 0; i < coins.length; i++){
+        if(coins[i].active && Phaser.Math.Distance.Between(x,y, coins[i].x,coins[i].y) <= distance){
+          let closestX = coins[i].x, closestY = coins[i].y;
+          console.log(closestX + " " + closestY);
+          for (let i = 0; i < dirt.length; i++){
+           if (dirt[i].x === closestX+17.5 && dirt[i].y === closestY+17.5){
+              dirt[i].setTint(0xff0000);
+              console.log(dirt[i].x + " " + dirt[i].y);
+              
+            }
+          }
+        }
+      }
+    };
     
     // make the player
     player = this.physics.add.sprite(45,140,'man');
@@ -234,6 +254,11 @@ const config = {
     }
     if (!player.body.onFloor()){
       player.anims.play('jump',true);
+    }
+    
+    // ping for coin locations
+    if (xKey.isDown){
+      distToCoin(player.x,player.y,250);
     }
 
     // timer
