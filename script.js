@@ -1,3 +1,5 @@
+/*jshint esversion: 6 */
+
 const config = {
     type: Phaser.Auto,
     width: 490,
@@ -102,7 +104,7 @@ const config = {
     coinsLeft = coinQuantity;
     coinGroup = this.physics.add.staticGroup();
     function generateCoins(coinQuantity){ 
-      let max = dirtLayerGroup.getChildren().length;
+      let max = dirtLayerGroup.getChildren().length-1;
       for (let x = 0; x < coinQuantity; x++){
         let index = Phaser.Math.RND.between(0, max);
         let x = dirtLayerGroup.getChildren()[index].x+17.5;
@@ -110,6 +112,7 @@ const config = {
         let newObj = coinGroup.create(x,y,'coin');
         newObj.setDepth(0);
           }
+          console.log(coinGroup.getChildren().length);
     }
     generateCoins(coinQuantity);
     
