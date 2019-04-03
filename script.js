@@ -35,6 +35,8 @@ const config = {
   
   
   function create(){
+    // keyboard listeners
+    let ctrl = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL);
     // add background music
     bgm = this.sound.add('bgm', {loop: true});
     bgm.play();
@@ -112,7 +114,6 @@ const config = {
         let newObj = coinGroup.create(x,y,'coin');
         newObj.setDepth(0);
           }
-          console.log(coinGroup.getChildren().length);
     }
     generateCoins(coinQuantity);
     
@@ -178,12 +179,14 @@ const config = {
         
     // collect coin function
     let collectCoin = (player,group) => {
+      if (ctrl.isDown){
       group.disableBody(this,this);
       this.sound.play('coin');
       score += 10;
       coinsLeft--;
       scoreText.setText('Score: ' + score);
       coinsText.setText('Coins Left: ' + coinsLeft);
+      }
     };
 
     // add colliders and overlaps
