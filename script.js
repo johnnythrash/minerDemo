@@ -18,11 +18,24 @@ const config = {
     }
   };
   
-  let player, bottomLayerGroup, sideSprite, topLayer, tiles, groundObj, topObj, coinObj, bottomObj, coins, score = 0, coinsLeft = 0, coinQuantity, timer, elapsed= 0, endText, restartText, counter,bgm;
+  // sprites and terrain
+  let player, bottomLayerGroup, sideSprite, topLayer, tiles, groundObj, topObj, bottomObj;
+
+  // coins 
+  let coinObj, coins, coinQuantity, coinsLeft = 0;
+  
+  // keyboard keys
   let ctrl, xKey, distToCoin;
   
+  // text, music, score, and timer
+  let score = 0, timer, elapsed = 0, endText, restartText, counter, bgm;
+
+  // game
   const game = new Phaser.Game(config);
+  
+  // width and height
   const gameWidth = game.config.width, gameHeight = game.config.height;
+
 
   function preload(){
     this.load.audio('coin', 'assets/sounds/coin.wav');
@@ -39,6 +52,7 @@ const config = {
     // keyboard listeners
     ctrl = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL);
     xKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
+    
     // add background music
     bgm = this.sound.add('bgm', {loop: true});
     bgm.play();
@@ -49,8 +63,6 @@ const config = {
     // create timer
     timer = this.time.addEvent({
       delay: 60000,
-      // callback: endGame(),
-      // callbackScope: this,
       loop: false
     });
 
@@ -117,6 +129,7 @@ const config = {
         newObj.setDepth(0);
           }
     }
+   
     generateCoins(coinQuantity);
     
     // ping for coins
@@ -126,12 +139,9 @@ const config = {
       for (let i = 0; i < coins.length; i++){
         if(coins[i].active && Phaser.Math.Distance.Between(x,y, coins[i].x,coins[i].y) <= distance){
           let closestX = coins[i].x, closestY = coins[i].y;
-          console.log(closestX + " " + closestY);
           for (let i = 0; i < dirt.length; i++){
            if (dirt[i].x === closestX+17.5 && dirt[i].y === closestY+17.5){
               dirt[i].setTint(0xff0000);
-              console.log(dirt[i].x + " " + dirt[i].y);
-              
             }
           }
         }
@@ -279,7 +289,6 @@ const config = {
       restartText = this.add.text(16, 380, 'click to restart', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
       restartText.setScrollFactor(0).setDepth(2).setInteractive();
       restartText.on('pointerup', () => {
-    
         this.scene.restart();
       });
     }
