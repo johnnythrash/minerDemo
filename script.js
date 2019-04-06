@@ -11,7 +11,7 @@
   let ctrl, xKey, distToCoin;
   
   // text, music, score, and timer
-  let score = 0, timer, elapsed = 0, endText, counter, bgm, pauseText;
+  let score = 0, timer, elapsed = 0, endText, counter, bgm, coinCollectSound, pauseText;
 
   var MainGame = new Phaser.Class({
     Extends: Phaser.Scene,
@@ -23,7 +23,7 @@
     },
 
     preload: function(){
-      this.load.audio('coin', 'assets/sounds/coin.wav');
+      this.load.audio('coinCollectSound', 'assets/sounds/coin.wav');
       this.load.audio('bgm', 'assets/sounds/bgm.mp3');
       this.load.image('bg', 'assets/backgroundImage.png');
       this.load.image('side','assets/backgroundImage.png');
@@ -41,6 +41,7 @@
       // add background music
       bgm = this.sound.add('bgm', {loop: true});
       bgm.play();
+      coinCollectSound = this.sound.add('coinCollectSound');
 
       // add background image
       this.add.image(735,630,'bg');
@@ -196,7 +197,7 @@
       let collectCoin = (player,group) => {
         if (ctrl.isDown){
         group.disableBody(this,this);
-        this.sound.play('coin');
+        coinCollectSound.play();
         score += 10;
         coinsLeft--;
         scoreText.setText('Score: ' + score);
@@ -225,7 +226,6 @@
       // pause the game on click
       pauseText.on('pointerup', () => {
         pauseText.visible = false;
-        bgm.pause();
         this.scene.pause();
         this.scene.launch('pauseScene');
       });
@@ -312,17 +312,44 @@
     create: function(){
       pauseOverlay = this.add.image(0,0, 'pauseOverlay').setOrigin(0,0).setAlpha(0.6);
     
-      let resumeText = this.add.text( 400, 10, 'Resume', { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
-      resumeText.setScrollFactor(0).setDepth(3).setInteractive();
+      let resumeText = this.add.text( 343, 10, 'Resume', { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
+      resumeText.setInteractive();
       resumeText.on('pointerup', () =>{
       this.scene.resume('mainGame');
       bgm.resume();
       this.scene.sleep();
       });
-    
       let canvas = this.sys.game.canvas;
       let gamePausedText = this.add.text ( (canvas.width/2)-100, canvas.height/2, ' Paused', { fontFamily: 'verdana', fontSize: '48px', fill: '#000'} );
-
+      let restartText = this.add.text(343, resumeText.y+30, "Restart",  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
+      restartText.setInteractive();
+      restartText.on('pointerup', () =>{
+        bgm.stop();
+        this.scene.start('mainGame');
+      });
+      let pauseMusicToggleText = this.add.text(343, restartText.y+30, "Music: Playing" ,  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
+      pauseMusicToggleText.setInteractive();
+      pauseMusicToggleText.on('pointerup', () =>{
+        console.log(bgm);
+        if (bgm.isPlaying){
+          bgm.pause();
+          pauseMusicToggleText.setText("Music: Paused");        
+        } else if (bgm.isPaused) {
+            bgm.resume();
+            pauseMusicToggleText.setText("Music: Playing");
+        }
+      });
+      let muteSoundsToggleText = this.add.text(343, pauseMusicToggleText.y+30, "Sounds: On" ,  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
+      muteSoundsToggleText.setInteractive();
+      muteSoundsToggleText.on('pointerup', () =>{
+       if (coinCollectSound.config.mute){
+         coinCollectSound.config.mute = false;
+         muteSoundsToggleText.setText("Sounds: Off");
+       } else if (!coinCollectSound.config.mute){
+         coinCollectSound.config.mute = true;
+         muteSoundsToggleText.setText("Sounds: On");
+       }
+      });
     }
   });
   
