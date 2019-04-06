@@ -28,7 +28,7 @@ const config = {
   let ctrl, xKey, distToCoin;
   
   // text, music, score, and timer
-  let score = 0, timer, elapsed = 0, endText, restartText, counter, bgm;
+  let score = 0, timer, elapsed = 0, endText, counter, bgm, pauseText;
 
   // game
   const game = new Phaser.Game(config);
@@ -233,7 +233,14 @@ const config = {
     coinsText.setScrollFactor(0).setDepth(2);
     timerText = this.add.text( 16,70,'Time Remaining: ' + elapsed, {fontFamily: 'verdana', fontSize: '18px', fill: '#fff'});
     timerText.setScrollFactor(0).setDepth(2);
-
+    pauseText = this.add.text( 425, 10, 'Pause', {fontFamily: 'verdana', fontSize: '18px', fill: '#fff', 'align': 'right'});
+    pauseText.setScrollFactor(0).setDepth(3).setInteractive();
+      
+    // pause the game on click
+    pauseText.on('pointerup', () => {
+      // fill this out 
+    });
+    
   }
   
   function update(){
