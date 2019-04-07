@@ -11,8 +11,10 @@
   let ctrl, xKey, distToCoin;
   
   // text, music, score, and timer
-  let score = 0, timer, elapsed = 0, endText, counter, falco, coinCollectSound, pauseText;
+  let score = 0, timer, elapsed = 0, endText, counter, coinCollectSound, pauseText; 
 
+  // background music
+  let bgm1,bgm2,bgm3,bgm4,bgm5,bgm6,bgm7,bgm8,bgm9,bgm10,bgm11,bgm12,bgm13,bgm14,bgm15;
   var MainGame = new Phaser.Class({
     Extends: Phaser.Scene,
 
@@ -22,9 +24,74 @@
       Phaser.Scene.call(this, { key: 'mainGame'});
     },
 
+    init: function (data){
+     
+    },
+
     preload: function(){
+      let width = this.cameras.main.width;
+      let height = this.cameras.main.height; 
+      let progressBar = this.add.graphics();
+      let progressBox = this.add.graphics();
+      progressBox.fillStyle(0x222222, 0.8);
+      progressBox.fillRect(80, 270, 320, 50);
+      let loadingText = this.make.text({
+        x: width/2,
+        y: height/2 -50,
+        text: 'Loading...',
+        style: {
+          font: '20px monospace',
+          fill: '#ffffff'
+        }
+      });
+      loadingText.setOrigin(0.5,0.5);
+      let percentText = this.make.text({
+        x: width/2,
+        y: height/2 +20,
+        text: "0%",
+        style: {
+          font: '18px monospace',
+          fill: '#ffffff'
+        }
+      });
+      percentText.setOrigin(0.5,0.5);
+      let assetText = this.make.text({
+        x: width/2,
+        y: height/2+50,
+        text: '',
+        style: {
+          font: '18px monospace',
+          fill: '#ffffff'
+        }
+      });
+      assetText.setOrigin(0.5,0.5);
+
+      this.load.on('progress', function(value){
+        percentText.setText(parseInt(value*100) + '%');
+        progressBar.clear();
+        progressBar.fillStyle(0xffffff, 1);
+        progressBar.fillRect((80), 280,300*value, 30);
+      });
+
+      this.load.on('fileprogress', function(file){
+        console.log(file);
+        assetText.setText('Loading asset: ' + file.key);
+      });
+
+      this.load.on('complete', function(){
+        progressBar.destroy();
+        progressBox.destroy();
+        loadingText.destroy();
+        percentText.destroy();
+        assetText.destroy();
+      });
+
       this.load.audio('coinCollectSound', 'assets/sounds/coin.wav');
-      this.load.audio('falco', 'assets/music/falco.mp3');
+      this.load.audio('bgm1', 'assets/music/falco.mp3');
+      this.load.audio('bgm2', 'assets/music/africa.mp3');
+      this.load.audio('bgm3', 'assets/music/bsbiwantit.mp3');
+      this.load.audio('bgm4', 'assets/music/everybody_wants.mp3');
+      this.load.audio('bgm5', 'assets/music/fiveonit.mp3');
       this.load.image('bg', 'assets/backgroundImage.png');
       this.load.image('side','assets/backgroundImage.png');
       this.load.image('coin','assets/sprites/star-coin.png');
@@ -34,13 +101,14 @@
     
   
     create: function(){
+      console.log(this);
       // keyboard listeners
       ctrl = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL);
       xKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
       
       // add background music
-      falco = this.sound.add('falco', {loop: true});
-      falco.play();
+      bgm1 = this.sound.add('bgm1', {loop: true});
+      bgm1.play();
       coinCollectSound = this.sound.add('coinCollectSound');
 
       // add background image
@@ -225,7 +293,7 @@
 
       // pause the game on click
       pauseText.on('pointerup', () => {
-        console.log(this.sound);
+        
         pauseText.visible = false;
         this.scene.pause();
         this.scene.launch('pauseScene');
@@ -279,7 +347,7 @@
 
       // end game when time is up or coins are collected
       if (counter == '60' || coinsLeft == 0){
-        falco.stop();
+        bgm1.stop();
         this.physics.pause();
         player.alpha = 0;
         endText = this.add.text(16, 315, 'GAME OVER', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
@@ -306,6 +374,10 @@
       Phaser.Scene.call(this, { key: 'pauseScene'});
     },
 
+    init: function (data){
+      console.log(data);
+      this.gameOver = data.gameOver;
+    },
     preload: function(){
       this.load.image('pauseOverlay', 'assets/images/pauseOverlay.png');
     },
@@ -317,7 +389,7 @@
       resumeText.setInteractive();
       resumeText.on('pointerup', () =>{
       this.scene.resume('mainGame');
-      falco.resume();
+      bgm1.resume();
       this.scene.sleep();
       });
       let canvas = this.sys.game.canvas;
@@ -325,18 +397,17 @@
       let restartText = this.add.text(343, resumeText.y+30, "Restart",  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
       restartText.setInteractive();
       restartText.on('pointerup', () =>{
-        falco.stop();
+        bgm1.stop();
         this.scene.start('mainGame');
       });
       let pauseMusicToggleText = this.add.text(343, restartText.y+30, "Music: Playing" ,  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
       pauseMusicToggleText.setInteractive();
       pauseMusicToggleText.on('pointerup', () =>{
-        console.log(falco);
-        if (falco.isPlaying){
-          falco.pause();
+        if (bgm1.isPlaying){
+          bgm1.pause();
           pauseMusicToggleText.setText("Music: Paused");        
-        } else if (falco.isPaused) {
-            falco.resume();
+        } else if (bgm1.isPaused) {
+            bgm1.resume();
             pauseMusicToggleText.setText("Music: Playing");
         }
       });
