@@ -11,7 +11,7 @@
   let ctrl, xKey, distToCoin;
   
   // text, music, score, and timer
-  let score = 0, timer, elapsed = 0, endText, counter, bgm, coinCollectSound, pauseText;
+  let score = 0, timer, elapsed = 0, endText, counter, falco, coinCollectSound, pauseText;
 
   var MainGame = new Phaser.Class({
     Extends: Phaser.Scene,
@@ -24,7 +24,7 @@
 
     preload: function(){
       this.load.audio('coinCollectSound', 'assets/sounds/coin.wav');
-      this.load.audio('bgm', 'assets/sounds/bgm.mp3');
+      this.load.audio('falco', 'assets/music/falco.mp3');
       this.load.image('bg', 'assets/backgroundImage.png');
       this.load.image('side','assets/backgroundImage.png');
       this.load.image('coin','assets/sprites/star-coin.png');
@@ -39,8 +39,8 @@
       xKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
       
       // add background music
-      bgm = this.sound.add('bgm', {loop: true});
-      bgm.play();
+      falco = this.sound.add('falco', {loop: true});
+      falco.play();
       coinCollectSound = this.sound.add('coinCollectSound');
 
       // add background image
@@ -225,6 +225,7 @@
 
       // pause the game on click
       pauseText.on('pointerup', () => {
+        console.log(this.sound);
         pauseText.visible = false;
         this.scene.pause();
         this.scene.launch('pauseScene');
@@ -278,7 +279,7 @@
 
       // end game when time is up or coins are collected
       if (counter == '60' || coinsLeft == 0){
-        bgm.stop();
+        falco.stop();
         this.physics.pause();
         player.alpha = 0;
         endText = this.add.text(16, 315, 'GAME OVER', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
@@ -316,7 +317,7 @@
       resumeText.setInteractive();
       resumeText.on('pointerup', () =>{
       this.scene.resume('mainGame');
-      bgm.resume();
+      falco.resume();
       this.scene.sleep();
       });
       let canvas = this.sys.game.canvas;
@@ -324,18 +325,18 @@
       let restartText = this.add.text(343, resumeText.y+30, "Restart",  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
       restartText.setInteractive();
       restartText.on('pointerup', () =>{
-        bgm.stop();
+        falco.stop();
         this.scene.start('mainGame');
       });
       let pauseMusicToggleText = this.add.text(343, restartText.y+30, "Music: Playing" ,  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
       pauseMusicToggleText.setInteractive();
       pauseMusicToggleText.on('pointerup', () =>{
-        console.log(bgm);
-        if (bgm.isPlaying){
-          bgm.pause();
+        console.log(falco);
+        if (falco.isPlaying){
+          falco.pause();
           pauseMusicToggleText.setText("Music: Paused");        
-        } else if (bgm.isPaused) {
-            bgm.resume();
+        } else if (falco.isPaused) {
+            falco.resume();
             pauseMusicToggleText.setText("Music: Playing");
         }
       });
