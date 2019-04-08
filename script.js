@@ -15,6 +15,7 @@
 
   // background music
   let music = {};
+  let songBank = {'bgm1':'falco','bgm2':'africa','bgm3':'bsb','bgm4':'tears4fears','bgm5':'igot5onit'};
   
   var MainGame = new Phaser.Class({
     Extends: Phaser.Scene,
@@ -101,7 +102,7 @@
     
   
     create: function(){
-
+      
       // keyboard listeners
       ctrl = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL);
       xKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
@@ -379,7 +380,7 @@
         if (coinsLeft == 0){
           pauseText.visible = false;
           this.physics.pause();
-          this.scene.launch("pauseScene", { nowPlaying: music.nowPlaying, gameState: 'win'})
+          this.scene.launch("pauseScene", { nowPlaying: music.nowPlaying, gameState: 'win'});
         }
       }
     } 
@@ -409,10 +410,28 @@
       
       // for positioning things
       let canvas = this.sys.game.canvas;
-      
+                  
       // load background image (just a white rectangle)
       pauseOverlay = this.add.image(0,0, 'pauseOverlay').setOrigin(0,0).setAlpha(0.6);
     
+
+
+      // show what song is currently playing
+      let songName;
+      let nowPlayingText = this.add.text(16, canvas.height-40,"Now Playing: ", { fontFamily: 'monospace', fontSize: '16px', fill:'#000'});
+     
+      let findName = () =>{
+        for (var key in songBank){
+          if (this.nowPlaying.key === key){
+           songName = songBank[key];
+          nowPlayingText.setText("Now Playing: " + songName);
+          }
+        }
+      };
+      findName();
+
+      
+
       // create menu items 
       // TODO create buttons and replace plain text menu items
       
@@ -469,6 +488,7 @@
         this.nowPlaying =  music['song'+ Phaser.Math.Between(1,5)];
         this.nowPlaying.play();
         console.log("changed song to: " + this.nowPlaying.key);
+        findName();
       });
       
       // let player know game is paused
@@ -488,7 +508,6 @@
       });
      
       // check to see if the player won, lost, or paused and show appropriate text
-      console.log(this.gameState === 'lose');
       if (this.gameState ==='win'){
         gamePausedText.visible = false;
         gameWinText.setText("You Win!");
