@@ -113,6 +113,7 @@
 
       //play random song on start 
       music.nowPlaying = music['song'+ Phaser.Math.Between(1,5)];
+      console.log(music.nowPlaying);
       music.nowPlaying.play();
       
       // add sound fx
@@ -298,7 +299,8 @@
       pauseText.setScrollFactor(0).setDepth(3).setInteractive();
       
 
-      // pause the game on click
+      // pause the game on click and tell the pause screen scene which song is currently playing as well as the current
+      // game state (paused, win, or lose)
       pauseText.on('pointerup', () => {
         pauseText.visible = false;
         this.scene.pause();
@@ -306,11 +308,16 @@
       });
       
       // resume handler
-      //  events.on('resume', (data) => {
-      //   console.log(data);
-      //   music.nowPlaying = data.nowPlaying;
-      //   console.log("resumed... " + music.nowPlaying);
-      // });
+      // if the music was switched in the pause menu, set music.nowPlaying to the new track
+       this.events.on('resume', (data) => {
+        let soundsArr = data.scene.sound.sounds; 
+        for (let i = 0; i < soundsArr.length; i++){
+          if (soundsArr[i].isPlaying){
+            music.nowPlaying = soundsArr[i];
+          }
+        }
+
+      });
 
     },
     
@@ -351,7 +358,7 @@
         distToCoin(player.x,player.y,250);
       }
 
-      // show pause text when returning from pause screen
+      // show pause text when returning from pause screen if it is not visible
       if (!pauseText.visible){
         pauseText.visible = true;
       }
@@ -360,30 +367,27 @@
       counter = timer.getElapsedSeconds().toString().substr(0,2);
       timerText.setText('Time Remaining: ' + (60 - counter));
 
+      
       // end game when time is up or coins are collected
       if (counter == '60' || coinsLeft == 0){
-        this.scene.launch("pauseScene", { gameState: 'lose'});
-        // music.nowPlaying.stop();
-        // this.physics.pause();
-        // player.alpha = 0;
-        // endText = this.add.text(16, 315, 'GAME OVER', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
-        // endText.setScrollFactor(0).setDepth(2);
+        pauseText.visible = false;
+        this.physics.pause();
+        // if there are still coins left, tell pause scene that the game is over and the player lost
+        this.scene.launch("pauseScene", { nowPlaying: music.nowPlaying, gameState: 'lose'});
+       
+        // if there are no coins left, tell pause scene that the game is over and the player won
         if (coinsLeft == 0){
-          this.scene.launch("pauseScene", { gameState: 'win'})
-          //       endText = this.add.text(16, 315, 'GAME OVER: YOU WIN!!', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
-        // endText.setScrollFactor(0).setDepth(2);
+          pauseText.visible = false;
+          this.physics.pause();
+          this.scene.launch("pauseScene", { nowPlaying: music.nowPlaying, gameState: 'win'})
         }
-        
-        // restartText = this.add.text(16, 380, 'click to restart', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
-        // restartText.setScrollFactor(0).setDepth(2).setInteractive();
-        // restartText.on('pointerup', () => {
-        //   this.scene.restart();
-        // });
       }
     } 
   });
 
+  // class for pause and end game scene
   var PauseScene = new Phaser.Class({
+  
     Extends: Phaser.Scene,
 
     initialize:
@@ -391,6 +395,7 @@
       Phaser.Scene.call(this, { key: 'pauseScene'});
     },
 
+    // get passed data from main game scene and assign to variable for use in this scene
     init: function (data){
       this.nowPlaying = data.nowPlaying;
       this.gameState = data.gameState;
@@ -401,41 +406,33 @@
     },
 
     create: function(){
+      
+      // for positioning things
+      let canvas = this.sys.game.canvas;
+      
+      // load background image (just a white rectangle)
       pauseOverlay = this.add.image(0,0, 'pauseOverlay').setOrigin(0,0).setAlpha(0.6);
     
+      // create menu items 
+      // TODO create buttons and replace plain text menu items
+      
+      // resume game from pause
       let resumeText = this.add.text( 343, 10, 'Resume', { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
       resumeText.setInteractive();
       resumeText.on('pointerup', () =>{
-      this.scene.resume('mainGame', { nowPlaying : this.nowPlaying});
-      this.nowPlaying.resume();
-      this.scene.sleep();
+        this.scene.resume('mainGame');
+        this.scene.sleep();
       });
-      let canvas = this.sys.game.canvas;
-      if (this.gameState === 'win'){
-        let gameWinText = this.add.text ( (canvas.width/2)-100, canvas.height/2, ' You Win!', { fontFamily: 'verdana', fontSize: '48px', fill: '#000'} );
-        let restartText = this.add.text(gameWinText.x+100, gameWinText.y+130, "Restart",  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
-        restartText.setInteractive();
-        restartText.on('pointerup', () =>{
-          this.nowPlaying.stop();
-          this.scene.start('mainGame');
-        });
-      } else if (this.gameState === 'lose'){
-        let gameWinText = this.add.text ( (canvas.width/2)-100, canvas.height/2, ' You Lose!', { fontFamily: 'verdana', fontSize: '48px', fill: '#000'} );
-        let restartText = this.add.text(gameWinText.x+100, gameWinText.y+130, "Restart",  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
-        restartText.setInteractive();
-        restartText.on('pointerup', () =>{
-          this.nowPlaying.stop();
-          this.scene.start('mainGame');
-        });
-      } else if (this.gameState === 'paused'){
-      let gamePausedText = this.add.text ( (canvas.width/2)-100, canvas.height/2, ' Paused', { fontFamily: 'verdana', fontSize: '48px', fill: '#000'} );
-      }
+      
+     // restart game from pause
       let restartText = this.add.text(343, resumeText.y+30, "Restart",  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
       restartText.setInteractive();
       restartText.on('pointerup', () =>{
         this.nowPlaying.stop();
         this.scene.start('mainGame');
       });
+
+      // toggle background music pause
       let pauseMusicToggleText = this.add.text(343, restartText.y+30, "Music: Playing" ,  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
       pauseMusicToggleText.setInteractive();
       pauseMusicToggleText.on('pointerup', () =>{
@@ -450,6 +447,8 @@
             pauseMusicToggleText.setText("Music: Playing");
         }
       });
+
+      // mute sound fx
       let muteSoundsToggleText = this.add.text(343, pauseMusicToggleText.y+30, "Sounds: On" ,  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
       muteSoundsToggleText.setInteractive();
       muteSoundsToggleText.on('pointerup', () =>{
@@ -461,6 +460,8 @@
          muteSoundsToggleText.setText("Sounds: On");
          }
       });
+
+      // change background music to new random song
       let changeSongText = this.add.text(343, muteSoundsToggleText.y+30, "Change Song" ,  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
       changeSongText.setInteractive();
       changeSongText.on('pointerup', () =>{
@@ -469,6 +470,48 @@
         this.nowPlaying.play();
         console.log("changed song to: " + this.nowPlaying.key);
       });
+      
+      // let player know game is paused
+      let gamePausedText = this.add.text ( (canvas.width/2)-100, canvas.height/2, ' Paused', { fontFamily: 'verdana', fontSize: '48px', fill: '#000'} );
+      
+      // let player know they won
+      let gameWinText = this.add.text ( (canvas.width/2)-100, canvas.height/2, ' You Win!', { fontFamily: 'verdana', fontSize: '48px', fill: '#000'} );
+      gameWinText.visible = false;
+      
+      // show the restart text when game is over
+      let restartGameOverText = this.add.text(gameWinText.x+100, gameWinText.y+130, "Restart",  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});     
+      restartGameOverText.visible = false; 
+      restartGameOverText.setInteractive();
+      restartGameOverText.on('pointerup', () =>{
+        this.nowPlaying.stop();
+        this.scene.start('mainGame');
+      });
+     
+      // check to see if the player won, lost, or paused and show appropriate text
+      console.log(this.gameState === 'lose');
+      if (this.gameState ==='win'){
+        gamePausedText.visible = false;
+        gameWinText.setText("You Win!");
+        gameWinText.visible = true;
+        // don't let player select any of the normal menu options
+        resumeText.visible = false;
+        restartText.visible = false;
+        pauseMusicToggleText.visible = false;
+        muteSoundsToggleText.visible = false;
+        changeSongText.visible = false;
+        restartGameOverText.visible = true; 
+      } else if (this.gameState === 'lose'){
+        gamePausedText.visible = false;
+        gameWinText.setText("You Lose!");
+        gameWinText.visible = true;
+        // don't let player select any of the normal menu options
+        resumeText.visible = false;
+        restartText.visible = false;
+        pauseMusicToggleText.visible = false;
+        muteSoundsToggleText.visible = false;
+        changeSongText.visible = false;
+        restartGameOverText.visible = true; 
+      } 
     }
   });
   
@@ -482,7 +525,7 @@ const config = {
     default: 'arcade',
     arcade: {
       gravity: { y:300 },
-      debug: true
+      debug: false
     }
   },
   scene: [MainGame, PauseScene]
