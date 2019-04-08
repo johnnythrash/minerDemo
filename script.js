@@ -25,8 +25,8 @@
       Phaser.Scene.call(this, { key: 'mainGame'});
     },
 
-    init: function (data){
-     
+    init: function (){
+
     },
 
     preload: function(){
@@ -302,12 +302,21 @@
       pauseText.on('pointerup', () => {
         pauseText.visible = false;
         this.scene.pause();
-        this.scene.launch('pauseScene', { nowPlaying: music.nowPlaying });
+        this.scene.launch('pauseScene', { nowPlaying: music.nowPlaying, gameState: 'paused' });
       });
       
+      // resume handler
+      //  events.on('resume', (data) => {
+      //   console.log(data);
+      //   music.nowPlaying = data.nowPlaying;
+      //   console.log("resumed... " + music.nowPlaying);
+      // });
+
     },
     
     update: function(){
+
+
       // controls
       if (cursors.left.isDown && player.body.onFloor()){
         player.body.setVelocityX(-200);
@@ -353,23 +362,25 @@
 
       // end game when time is up or coins are collected
       if (counter == '60' || coinsLeft == 0){
-        music.nowPlaying.stop();
-        this.physics.pause();
-        player.alpha = 0;
-        endText = this.add.text(16, 315, 'GAME OVER', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
-        endText.setScrollFactor(0).setDepth(2);
+        this.scene.launch("pauseScene", { gameState: 'lose'});
+        // music.nowPlaying.stop();
+        // this.physics.pause();
+        // player.alpha = 0;
+        // endText = this.add.text(16, 315, 'GAME OVER', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
+        // endText.setScrollFactor(0).setDepth(2);
         if (coinsLeft == 0){
-              endText = this.add.text(16, 315, 'GAME OVER: YOU WIN!!', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
-        endText.setScrollFactor(0).setDepth(2);
+          this.scene.launch("pauseScene", { gameState: 'win'})
+          //       endText = this.add.text(16, 315, 'GAME OVER: YOU WIN!!', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
+        // endText.setScrollFactor(0).setDepth(2);
         }
         
-        restartText = this.add.text(16, 380, 'click to restart', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
-        restartText.setScrollFactor(0).setDepth(2).setInteractive();
-        restartText.on('pointerup', () => {
-          this.scene.restart();
-        });
+        // restartText = this.add.text(16, 380, 'click to restart', { fontFamily: 'verdana', fontSize: '36px', fill: '#f44242'});
+        // restartText.setScrollFactor(0).setDepth(2).setInteractive();
+        // restartText.on('pointerup', () => {
+        //   this.scene.restart();
+        // });
       }
-    }
+    } 
   });
 
   var PauseScene = new Phaser.Class({
@@ -381,9 +392,10 @@
     },
 
     init: function (data){
-      console.log(data);
       this.nowPlaying = data.nowPlaying;
+      this.gameState = data.gameState;
     },
+
     preload: function(){
       this.load.image('pauseOverlay', 'assets/images/pauseOverlay.png');
     },
@@ -394,12 +406,30 @@
       let resumeText = this.add.text( 343, 10, 'Resume', { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
       resumeText.setInteractive();
       resumeText.on('pointerup', () =>{
-      this.scene.resume('mainGame');
+      this.scene.resume('mainGame', { nowPlaying : this.nowPlaying});
       this.nowPlaying.resume();
       this.scene.sleep();
       });
       let canvas = this.sys.game.canvas;
+      if (this.gameState === 'win'){
+        let gameWinText = this.add.text ( (canvas.width/2)-100, canvas.height/2, ' You Win!', { fontFamily: 'verdana', fontSize: '48px', fill: '#000'} );
+        let restartText = this.add.text(gameWinText.x+100, gameWinText.y+130, "Restart",  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
+        restartText.setInteractive();
+        restartText.on('pointerup', () =>{
+          this.nowPlaying.stop();
+          this.scene.start('mainGame');
+        });
+      } else if (this.gameState === 'lose'){
+        let gameWinText = this.add.text ( (canvas.width/2)-100, canvas.height/2, ' You Lose!', { fontFamily: 'verdana', fontSize: '48px', fill: '#000'} );
+        let restartText = this.add.text(gameWinText.x+100, gameWinText.y+130, "Restart",  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
+        restartText.setInteractive();
+        restartText.on('pointerup', () =>{
+          this.nowPlaying.stop();
+          this.scene.start('mainGame');
+        });
+      } else if (this.gameState === 'paused'){
       let gamePausedText = this.add.text ( (canvas.width/2)-100, canvas.height/2, ' Paused', { fontFamily: 'verdana', fontSize: '48px', fill: '#000'} );
+      }
       let restartText = this.add.text(343, resumeText.y+30, "Restart",  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
       restartText.setInteractive();
       restartText.on('pointerup', () =>{
@@ -409,10 +439,13 @@
       let pauseMusicToggleText = this.add.text(343, restartText.y+30, "Music: Playing" ,  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
       pauseMusicToggleText.setInteractive();
       pauseMusicToggleText.on('pointerup', () =>{
+        console.log(this.nowPlaying.key, this.nowPlaying);
         if (this.nowPlaying.isPlaying){
+          console.log("pausing music...");
           this.nowPlaying.pause();
           pauseMusicToggleText.setText("Music: Paused");        
         } else if (this.nowPlaying.isPaused) {
+            console.log("unpausing music...");
             this.nowPlaying.resume();
             pauseMusicToggleText.setText("Music: Playing");
         }
@@ -426,7 +459,15 @@
        } else if (!coinCollectSound.config.mute){
          coinCollectSound.config.mute = true;
          muteSoundsToggleText.setText("Sounds: On");
-       }
+         }
+      });
+      let changeSongText = this.add.text(343, muteSoundsToggleText.y+30, "Change Song" ,  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
+      changeSongText.setInteractive();
+      changeSongText.on('pointerup', () =>{
+        this.nowPlaying.stop();
+        this.nowPlaying =  music['song'+ Phaser.Math.Between(1,5)];
+        this.nowPlaying.play();
+        console.log("changed song to: " + this.nowPlaying.key);
       });
     }
   });
