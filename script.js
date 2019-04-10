@@ -1,28 +1,14 @@
 /*jshint esversion: 6 */
 
-  /*
-      for ladders: 
-      add collider or overlap between ladder and dirt and ladder and coins that doesn't allow ladder to be placed if it is overlapping 
-      make function that places ladder directly above player (player.x, player.y+ 35);
-      
-      set player movement to allow to go up ladders
-
-
-  */
   // sprites and terrain
   let player, bottomLayerGroup, sideSprite, topLayer, tiles, groundObj, topObj, bottomObj;
-  let ladderGroup;
-  let ladderObj;
-  let createLadder;
+
 
   // coins 
   let coinObj, coins, coinQuantity, coinsLeft = 0;
   
   // keyboard keys
   let ctrl, xKey, distToCoin;
-
-  // create ladder for up movement
-  let ladder,  placeLadder;
 
   // text, music, score, and timer
   let score = 0, timer, elapsed = 0, endText, counter, coinCollectSound, pauseText; 
@@ -117,7 +103,12 @@
     
   
     create: function(){
- 
+      // ladders 
+      let ladderGroup;
+      let ladderObj;
+      let createLadder;
+      
+
       // keyboard listeners
       ctrl = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL);
       xKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
@@ -130,7 +121,6 @@
 
       //play random song on start 
       music.nowPlaying = music['song'+ Phaser.Math.Between(1,5)];
-      console.log(music.nowPlaying);
       music.nowPlaying.play();
       
       // add sound fx
@@ -210,7 +200,6 @@
           newObj.setDepth(0);
             }
       }
-    
       generateCoins(coinQuantity);
       
       // ping for coins
@@ -230,7 +219,7 @@
       };
       
       
-        // make the player
+       // make the player
       player = this.physics.add.sprite(45,140,'man');
       player.setCollideWorldBounds(false).setScale(2).setSize(15,15).setOffset(15,20);
     
@@ -301,24 +290,33 @@
         }
       };
       
-
-      // function to make ladder above player      
-      createLadder = () =>{
-        ladderGroup.create(player.x,player.y-35,'ladder');
-      };
       
+      
+      // function to make ladder above player      
+      // -- TODO -- make this less shitty =D
+      createLadder = () =>{
+        let ladders = ladderGroup.getChildren();
+        let newLadder = ladderGroup.create(player.x,player.y-35,'ladder');
+        let isOverlapping = this.physics.world.overlap(ladders,newLadder);
+        if (isOverlapping){
+          let len = ladders.length;
+            ladders[len-1].destroy();
+     
+        }
+      };
+     
+      // make ladder above player when Q key is pressed.
+      qKey.on('up', ()=>{ createLadder();});
+    
       // function for climbing
       let letsClimb = (player,group) =>{
-        if (player.body.onFloor() && cursors.up.isDown){
-          player.body.setAllowGravity(false);
+        player.body.gravity.y = 0;
+        player.body.setVelocityY(0);
+        if ( cursors.up.isDown){
           player.body.setVelocityY(-200);
-          player.isClimbing = true;
-         }
-      };
-
-      // function to remove ladder so player cannot place it behind or on dirt
-      let removeLadder = (groundTile,ladder) => {
-        groundTile.disableBody(this,this);
+          } else if (cursors.down.isDown){
+            player.body.setVelocityY(200);
+          }
       };
 
       // add colliders and overlaps
@@ -328,8 +326,7 @@
       this.physics.add.collider(player, bottomLayerGroup);
       this.physics.add.overlap(player, coinGroup, collectCoin, null, this);
       this.physics.add.overlap(player, ladderGroup, letsClimb );
-      //this.physics.add.overlap(dirtLayerGroup, ladderGroup, removeLadder);
-      //this.physics.add.overlap(ladderGroup, topLayerGroup, removeLadder);
+      
 
       // screen text
       scoreText = this.add.text(16, 10, 'Score: 0', { fontFamily: 'verdana', fontSize: '18px', fill: '#fff'});
@@ -367,13 +364,8 @@
     
     update: function(){
 
-
     
       // controls
-      if (player.isClimbing){
-        player.isClimbing = false;
-        player.body.setAllowGravity(true);
-      }
       if (cursors.left.isDown && player.body.onFloor()){
         player.body.setVelocityX(-200);
         player.anims.play('walk',true);
@@ -407,9 +399,7 @@
         distToCoin(player.x,player.y,250);
       }
 
-      if (qKey.isDown){
-        createLadder();
-      }  
+  
       // show pause text when returning from pause screen if it is not visible
       if (!pauseText.visible){
         pauseText.visible = true;
