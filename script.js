@@ -1,7 +1,7 @@
 /*jshint esversion: 6 */
 
   // sprites and terrain
-  let player, bottomLayerGroup, sideSprite, topLayer, tiles, groundObj, topObj, bottomObj;
+  let player;
 
 
   // coins 
@@ -108,6 +108,8 @@
       let ladderObj;
       let createLadder;
       
+      // terrain
+      let bottomLayerGroup, sideSprite, tiles, groundObj, bottomObj;
 
       // keyboard listeners
       ctrl = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL);
@@ -158,14 +160,13 @@
     
       // create sprite groups
       bottomLayerGroup = this.physics.add.staticGroup();
-      topLayerGroup = this.physics.add.staticGroup();
       dirtLayerGroup = this.physics.add.staticGroup();
       ladderGroup = this.physics.add.staticGroup();
           
       // draw top layer
       for (let x = 35; x < 1470; x+=35)
       {
-        createSpriteGroup(x, 210, 'tiles', [2], topLayerGroup, 'topObj',false,1);
+        createSpriteGroup(x, 210, 'tiles', [2], dirtLayerGroup, 'topObj',false,1);
       }
 
       // generate dirt layers  
@@ -301,10 +302,10 @@
         if (isOverlapping){
           let len = ladders.length;
             ladders[len-1].destroy();
-     
+          
         }
       };
-     
+
       // make ladder above player when Q key is pressed.
       qKey.on('up', ()=>{ createLadder();});
     
@@ -320,7 +321,6 @@
       };
 
       // add colliders and overlaps
-      this.physics.add.collider(player, topLayerGroup, digDirt);
       this.physics.add.collider(player, dirtLayerGroup, digDirt);
       this.physics.add.collider(player, sideSprite);
       this.physics.add.collider(player, bottomLayerGroup);
