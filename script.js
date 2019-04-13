@@ -143,12 +143,14 @@
       // create sprite groups function
       let createSpriteGroup = (x,y,sprite,frame,objectType,objectGroup, height=false, depth= 0)=>{
         objectGroup = objectType.create(x,y,sprite,frame);
-        objectGroup.width = 35; 
-        objectGroup.height = 35;
+        objectGroup.setOffset(17.5,17.5);
+        objectGroup.body.width = 35; 
+        objectGroup.body.height = 35;
         if (height === true){
           objectGroup.displayHeight = 35;
           objectGroup.displayWidth = 35;
         }
+        
     
         if (depth !==0){
           objectGroup.setDepth(depth);
@@ -162,17 +164,17 @@
       ladderGroup = this.physics.add.staticGroup();
           
       // draw top layer
-      for (let x = 35; x < 1470; x+=35)
+      for (let x = 17.5; x < 1470; x+=35)
       {
-        createSpriteGroup(x, 210, 'tiles', [2], dirtLayerGroup, 'topObj',false,1);
+        createSpriteGroup(x, 192.5, 'tiles', [2], dirtLayerGroup, 'topObj',true,1);
       }
 
       // generate dirt layers  
-      for (let i = 0, y = 245; i < 27; i++)
+      for (let i = 0, y = 227.5; i < 27; i++)
       {
-        for (let j = 0, x = 0; j < 42; j++)
+        for (let j = 0, x = 17.5; j < 42; j++)
         {
-        createSpriteGroup(x,y,'tiles',[4],dirtLayerGroup,'groundObj',false,1);
+        createSpriteGroup(x,y,'tiles',[4],dirtLayerGroup,'groundObj',true,1);
           x+=35;
         }
         y+=35;
@@ -193,8 +195,8 @@
         let max = dirtLayerGroup.getChildren().length-1;
         for (let x = 0; x < coinQuantity; x++){
           let index = Phaser.Math.RND.between(0, max);
-          let x = dirtLayerGroup.getChildren()[index].x+17.5;
-          let y = dirtLayerGroup.getChildren()[index].y+17.5;
+          let x = dirtLayerGroup.getChildren()[index].x;
+          let y = dirtLayerGroup.getChildren()[index].y;
           let newObj = coinGroup.create(x,y,'coin');
           newObj.setDepth(0);
             }
@@ -209,7 +211,7 @@
           if(coins[i].active && Phaser.Math.Distance.Between(x,y, coins[i].x,coins[i].y) <= distance){
             let closestX = coins[i].x, closestY = coins[i].y;
             for (let i = 0; i < dirt.length; i++){
-            if (dirt[i].x === closestX+17.5 && dirt[i].y === closestY+17.5){
+            if (dirt[i].x === closestX && dirt[i].y === closestY){
                 dirt[i].setTint(0xff0000);
               }
             }
@@ -313,8 +315,14 @@
         }
       };
         
+      let randomDirt = () =>{
+        let dirt = dirtLayerGroup.getChildren();
+        let randomNum = Phaser.Math.RND.between(0, dirt.length-1);
+        console.log(dirt[randomNum]);
+      };
+
       // make ladder above player when Q key is pressed.
-      qKey.on('up', ()=>{ createLadder();});
+      qKey.on('up', ()=>{ createLadder(); randomDirt();});
     
       // function for climbing
       let letsClimb = (player,group) =>{
@@ -601,7 +609,7 @@ const config = {
     default: 'arcade',
     arcade: {
       gravity: { y:300 },
-      debug: false
+      debug: true
     }
   },
   scene: [MainGame, PauseScene]
