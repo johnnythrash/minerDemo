@@ -1,5 +1,6 @@
 /*jshint esversion: 6 */
 
+
   // Player
   let player;
 
@@ -125,11 +126,14 @@
       // add background image
       this.add.image(735,630,'bg');
     
+
       // create timer
       timer = this.time.addEvent({
-        delay: 60000,
-        loop: false
+        delay: 60000 ,
+        repeat: 60        
       });
+
+
 
       // add side sprites for bounding
       sideSprite = this.physics.add.staticGroup();
@@ -336,7 +340,7 @@
       scoreText.setScrollFactor(0).setDepth(2);
       coinsText = this.add.text( 16,40, 'Coins Left: '+ coinsLeft, { fontFamily: 'verdana', fontSize: '18px', fill: '#fff'});
       coinsText.setScrollFactor(0).setDepth(2);
-      timerText = this.add.text( 16,70,'Time Remaining: ' + elapsed, {fontFamily: 'verdana', fontSize: '18px', fill: '#fff'});
+      timerText = this.add.text( 16,70,'Time: ' + elapsed, {fontFamily: 'verdana', fontSize: '18px', fill: '#fff'});
       timerText.setScrollFactor(0).setDepth(2);
       pauseText = this.add.text( 425, 10, 'Pause', {fontFamily: 'verdana', fontSize: '18px', fill: '#fff', 'align': 'right'});
       pauseText.setScrollFactor(0).setDepth(3).setInteractive();
@@ -366,7 +370,7 @@
     },
     
     update: function(){
-
+      
     
       // controls
       if (cursors.left.isDown && player.body.onFloor()){
@@ -404,28 +408,40 @@
       if (!pauseText.visible){
         pauseText.visible = true;
       }
+   
 
       // timer
-      counter = timer.getElapsedSeconds().toString().substr(0,2);
-      timerText.setText('Time Remaining: ' + (60 - counter));
-
+      mins = 60-timer.repeatCount;
+      console.log(mins);
+      seconds = timer.getElapsedSeconds();
+      milli = (timer.elapsed * 10).toString();
       
-      // end game when time is up or coins are collected
-      if (counter == '60' || coinsLeft == 0){
-        pauseText.visible = false;
-        this.physics.pause();
-        // if there are still coins left, tell pause scene that the game is over and the player lost
-        this.scene.launch("pauseScene", { nowPlaying: music.nowPlaying, gameState: 'lose'});
-       
+      if (mins < 10){
+        mins = "0"+mins;
+      }
+      if (seconds <10){
+        seconds = "0" + seconds.toString().substr(0,1);
+        milli = milli.substr(1,2);
+      }
+      if (seconds >= 10){
+        seconds = timer.getElapsedSeconds().toString().substr(0,2);
+        milli = milli.substr(2,2);
+      }
+    
+      timerText.setText('Time: ' + mins + ":" + seconds + ":" + milli);
+
+
         // if there are no coins left, tell pause scene that the game is over and the player won
         if (coinsLeft == 0){
           pauseText.visible = false;
-          this.physics.pause();
+          this.scene.pause();
           this.scene.launch("pauseScene", { nowPlaying: music.nowPlaying, gameState: 'win'});
         }
-      }
-    } 
+      
+      } 
   });
+
+
 
   // class for pause and end game scene
   var PauseScene = new Phaser.Class({
