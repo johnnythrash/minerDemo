@@ -304,12 +304,18 @@
          if (player.y > 210){
           if (ladders.length == 0){
             let newLadder = ladderGroup.create(player.x,player.y-35,'ladder');
+            newLadder.body.height = 35;
+            newLadder.body.width = 35;
+            
+        
           }
           for (i =0; i < ladders.length; i++){
             let playerX = player.x, playerY = player.y;
             let ladderX = ladders[i].x, ladderY = ladders[i].y;
             if (playerX !== ladderX && playerY !== ladderY){
             let newLadder = ladderGroup.create(player.x,player.y,'ladder');
+            newLadder.body.height = 35;
+            newLadder.body.width = 35;
             }  
           }
         }
