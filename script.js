@@ -146,8 +146,8 @@
         objectGroup.width = 35; 
         objectGroup.height = 35;
         if (height === true){
-          objectGroup.displayHeight = 32;
-          objectGroup.displayWidth = 32;
+          objectGroup.displayHeight = 35;
+          objectGroup.displayWidth = 35;
         }
     
         if (depth !==0){
