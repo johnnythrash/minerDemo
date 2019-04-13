@@ -1,15 +1,11 @@
 /*jshint esversion: 6 */
 
-  // sprites and terrain
+  // Player
   let player;
-
 
   // coins 
   let coinObj, coins, coinQuantity, coinsLeft = 0;
   
-  // keyboard keys
-  let ctrl, xKey, distToCoin;
-
   // text, music, score, and timer
   let score = 0, timer, elapsed = 0, endText, counter, coinCollectSound, pauseText; 
 
@@ -105,16 +101,14 @@
     create: function(){
       // ladders 
       let ladderGroup;
-      let ladderObj;
-      let createLadder;
       
       // terrain
-      let bottomLayerGroup, sideSprite, tiles, groundObj, bottomObj;
+      let bottomLayerGroup, sideSprite;
 
       // keyboard listeners
-      ctrl = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL);
-      xKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
-      qKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
+      let ctrl = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL);
+      let xKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
+      let qKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
       
       // add background music
       for (let i = 1; i < 6; i++){
@@ -170,7 +164,7 @@
       }
 
       // generate dirt layers  
-      for (let i = 0, y = 245; i < 28; i++)
+      for (let i = 0, y = 245; i < 27; i++)
       {
         for (let j = 0, x = 0; j < 42; j++)
         {
@@ -191,7 +185,7 @@
       coinQuantity = 10;
       coinsLeft = coinQuantity;
       coinGroup = this.physics.add.staticGroup();
-      function generateCoins(coinQuantity){ 
+      let generateCoins = (coinQuantity) =>{ 
         let max = dirtLayerGroup.getChildren().length-1;
         for (let x = 0; x < coinQuantity; x++){
           let index = Phaser.Math.RND.between(0, max);
@@ -200,11 +194,11 @@
           let newObj = coinGroup.create(x,y,'coin');
           newObj.setDepth(0);
             }
-      }
+       };
       generateCoins(coinQuantity);
       
       // ping for coins
-      distToCoin = (x,y,distance) => {
+      let distToCoin = (x,y,distance) => {
         let coins = coinGroup.getChildren();
         let dirt = dirtLayerGroup.getChildren();
         for (let i = 0; i < coins.length; i++){
@@ -218,6 +212,9 @@
           }
         }
       };
+
+      // ping for coin locations
+      xKey.on('up', () => { distToCoin(player.x,player.y,250); });
       
       
        // make the player
@@ -278,16 +275,15 @@
           }    
         };
 
-          
       // collect coin function
       let collectCoin = (player,group) => {
         if (ctrl.isDown){
-        group.disableBody(this,this);
-        coinCollectSound.play();
-        score += 10;
-        coinsLeft--;
-        scoreText.setText('Score: ' + score);
-        coinsText.setText('Coins Left: ' + coinsLeft);
+          group.disableBody(this,this);
+          coinCollectSound.play();
+          score += 10;
+          coinsLeft--;
+          scoreText.setText('Score: ' + score);
+          coinsText.setText('Coins Left: ' + coinsLeft);
         }
       };
       
@@ -295,17 +291,24 @@
       
       // function to make ladder above player      
       // -- TODO -- make this less shitty =D
-      createLadder = () =>{
+      // current issue with looping through multiple ladders bogs the game down a lot. 
+      let createLadder = () =>{
         let ladders = ladderGroup.getChildren();
-        let newLadder = ladderGroup.create(player.x,player.y-35,'ladder');
-        let isOverlapping = this.physics.world.overlap(ladders,newLadder);
-        if (isOverlapping){
-          let len = ladders.length;
-            ladders[len-1].destroy();
-          
+
+         if (player.y > 210){
+          if (ladders.length == 0){
+            let newLadder = ladderGroup.create(player.x,player.y-35,'ladder');
+          }
+          for (i =0; i < ladders.length; i++){
+            let playerX = player.x, playerY = player.y;
+            let ladderX = ladders[i].x, ladderY = ladders[i].y;
+            if (playerX !== ladderX && playerY !== ladderY){
+            let newLadder = ladderGroup.create(player.x,player.y,'ladder');
+            }  
+          }
         }
       };
-
+        
       // make ladder above player when Q key is pressed.
       qKey.on('up', ()=>{ createLadder();});
     
@@ -394,10 +397,7 @@
         player.anims.play('jump',true);
       }
       
-      // ping for coin locations
-      if (xKey.isDown){
-        distToCoin(player.x,player.y,250);
-      }
+
 
   
       // show pause text when returning from pause screen if it is not visible
