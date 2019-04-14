@@ -94,6 +94,7 @@
       this.load.image('side','assets/backgroundImage.png');
       this.load.image('coin','assets/sprites/star-coin.png');
       this.load.svg('ladder', 'assets/sprites/ladder.svg', {width: 70, height: 70});
+      this.load.svg('boulder', 'assets/sprites/boulder.svg', {width: 70, height: 70});
       this.load.spritesheet('man', 'assets/sprites/adventurer-Sheet.png', {frameWidth: 50, frameHeight: 37 });
       this.load.spritesheet('tiles', 'assets/sprites/tiles.png',{frameWidth: 70, frameHeight: 70 });
     },
@@ -171,7 +172,7 @@
       }
 
       // generate dirt layers  
-      for (let i = 0, y = 227.5; i < 27; i++)
+      for (let i = 0, y = 227.5; i < 28; i++)
       {
         for (let j = 0, x = 17.5; j < 42; j++)
         {
@@ -196,17 +197,28 @@
         let x = dirt[newRandom].x;
         let y = dirt[newRandom].y;
         dirt[newRandom].destroy();
-        let newRock =  createSpriteGroup(x,y,'tiles',[10],rockLayerGroup,'rockObj',true,1);
-        newRock.setOffset(-2,-2);
+        let newRock = rockLayerGroup.create(x+5,y,'boulder');
+        newRock.body.height = 35;
+        newRock.body.width = 35;
+        newRock.setOffset(10,-2);
+        newRock.setMass(100);
+        newRock.enableBody();
          }
 
+        
       // check if player is crushed
       let rockCrush = (player,group) => {
         group.body.setVelocityX(0);
         if (group.body.hitTest(player.x,player.y)) {
-         pauseText.visible = false;
-         this.scene.pause();
-         this.scene.launch("pauseScene", { nowPlaying: music.nowPlaying, gameState: 'crush'});
+         this.anims.remove('idle');
+         this.anims.pauseAll();
+         this.anims.play('crushed', player);
+         player.on('animationcomplete', ()=> {
+          pauseText.visible = false;
+          this.scene.pause();
+          this.scene.launch("pauseScene", { nowPlaying: music.nowPlaying, gameState: 'crush'});
+         }, this);
+
        }
       };
 
@@ -279,7 +291,12 @@
         frameRate: 10,
         repeat: -1
       });
-    
+      this.anims.create({
+        key: 'crushed',
+        frames: this.anims.generateFrameNumbers('man', { start:64, end: 68}),
+        duration: 20000
+      });
+
       // camera views
       this.cameras.main.setViewport(0,0,490,630);
       this.cameras.main.startFollow(player);
