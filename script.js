@@ -1,18 +1,4 @@
 /*jshint esversion: 6 */
-
-
-  // Player
-  let player;
-
-  // coins 
-  let coinObj, coins, coinQuantity, coinsLeft = 0;
-  
-  // text, music, score, and timer
-  let score = 0, timer, elapsed = 0, endText, counter, coinCollectSound, pauseText; 
-
-  // background music
-  let music = {};
-  let songBank = {'bgm1':'falco','bgm2':'africa','bgm3':'bsb','bgm4':'tears4fears','bgm5':'igot5onit'};
   
   var MainGame = new Phaser.Class({
     Extends: Phaser.Scene,
@@ -24,7 +10,7 @@
     },
 
     init: function (){
-
+      
     },
 
     preload: function(){
@@ -100,7 +86,8 @@
     },
     
   
-    create: function(){
+    create: function(){   
+
       // ladders 
       let ladderGroup;
       
@@ -113,28 +100,26 @@
       let qKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
       
       // add background music
+      this.music = {};
       for (let i = 1; i < 6; i++){
-        music['song'+i] = this.sound.add('bgm'+i, {loop: true});
+        this.music['song'+i] = this.sound.add('bgm'+i, {loop: true});
       }
 
       //play random song on start 
-      music.nowPlaying = music['song'+ Phaser.Math.Between(1,5)];
-      music.nowPlaying.play();
+      this.music.nowPlaying = this.music['song'+ Phaser.Math.Between(1,5)];
+      this.music.nowPlaying.play();
       
       // add sound fx
-      coinCollectSound = this.sound.add('coinCollectSound');
+      let coinCollectSound = this.sound.add('coinCollectSound');
 
       // add background image
       this.add.image(735,630,'bg');
     
-
       // create timer
-      timer = this.time.addEvent({
+      this.timer = this.time.addEvent({
         delay: 60000 ,
         repeat: 60        
       });
-
-
 
       // add side sprites for bounding
       sideSprite = this.physics.add.staticGroup();
@@ -151,8 +136,6 @@
           objectGroup.displayHeight = 35;
           objectGroup.displayWidth = 35;
         }
-        
-    
         if (depth !==0){
           objectGroup.setDepth(depth);
         }
@@ -171,7 +154,7 @@
         createSpriteGroup(x, 192.5, 'tiles', [2], dirtLayerGroup, 'topObj',true,1);
       }
 
-      // generate dirt layers  
+       // generate dirt layers  
       for (let i = 0, y = 227.5; i < 28; i++)
       {
         for (let j = 0, x = 17.5; j < 42; j++)
@@ -214,17 +197,18 @@
          this.anims.pauseAll();
          this.anims.play('crushed', player);
          player.on('animationcomplete', ()=> {
-          pauseText.visible = false;
+          this.pauseText.visible = false;
           this.scene.pause();
-          this.scene.launch("pauseScene", { nowPlaying: music.nowPlaying, gameState: 'crush'});
+          this.scene.launch("pauseScene", { nowPlaying: this.music.nowPlaying, gameState: 'crush', musicObj: this.music});
          }, this);
 
-       }
-      };
+        }
+       };
 
       // generate coins 
-      coinQuantity = 10;
-      coinsLeft = coinQuantity;
+      this.coinsLeft = 0;
+      let  coinQuantity = 10;
+      this.coinsLeft = coinQuantity;
       coinGroup = this.physics.add.staticGroup();
       let generateCoins = (coinQuantity) =>{ 
         let max = dirtLayerGroup.getChildren().length-1;
@@ -259,7 +243,8 @@
       
       
        // make the player
-      player = this.physics.add.sprite(45,140,'man');
+      this.player = this.physics.add.sprite(45,140,'man');
+      player = this.player;
       player.setCollideWorldBounds(false).setScale(2).setSize(15,15).setOffset(15,20);
     
       // player animations
@@ -326,10 +311,8 @@
         if (ctrl.isDown){
           group.disableBody(this,this);
           coinCollectSound.play();
-          score += 10;
-          coinsLeft--;
-          scoreText.setText('Score: ' + score);
-          coinsText.setText('Coins Left: ' + coinsLeft);
+          this.coinsLeft--;
+          coinsText.setText('Coins Left: ' + this.coinsLeft);
         }
       };
       
@@ -364,8 +347,7 @@
       let randomDirt = () =>{
         let dirt = dirtLayerGroup.getChildren();
         let randomNum = Phaser.Math.RND.between(0, dirt.length-1);
-        console.log(dirt[randomNum]);
-      };
+       };
 
       // make ladder above player when Q key is pressed.
       qKey.on('up', ()=>{ createLadder(); randomDirt();});
@@ -393,22 +375,20 @@
       this.physics.add.collider(player, rockLayerGroup, rockCrush);
 
       // screen text
-      scoreText = this.add.text(16, 10, 'Score: 0', { fontFamily: 'verdana', fontSize: '18px', fill: '#fff'});
-      scoreText.setScrollFactor(0).setDepth(2);
-      coinsText = this.add.text( 16,40, 'Coins Left: '+ coinsLeft, { fontFamily: 'verdana', fontSize: '18px', fill: '#fff'});
+      coinsText = this.add.text( 16,40, 'Coins Left: '+ this.coinsLeft, { fontFamily: 'verdana', fontSize: '18px', fill: '#fff'});
       coinsText.setScrollFactor(0).setDepth(2);
-      timerText = this.add.text( 16,70,'Time: ' + elapsed, {fontFamily: 'verdana', fontSize: '18px', fill: '#fff'});
+      timerText = this.add.text( 16,10,'Time: 0' , {fontFamily: 'verdana', fontSize: '18px', fill: '#fff'});
       timerText.setScrollFactor(0).setDepth(2);
-      pauseText = this.add.text( 425, 10, 'Pause', {fontFamily: 'verdana', fontSize: '18px', fill: '#fff', 'align': 'right'});
-      pauseText.setScrollFactor(0).setDepth(3).setInteractive();
+      this.pauseText = this.add.text( 425, 10, 'Pause', {fontFamily: 'verdana', fontSize: '18px', fill: '#fff', 'align': 'right'});
+      this.pauseText.setScrollFactor(0).setDepth(3).setInteractive();
       
 
       // pause the game on click and tell the pause screen scene which song is currently playing as well as the current
       // game state (paused, win, or lose)
-      pauseText.on('pointerup', () => {
-        pauseText.visible = false;
+      this.pauseText.on('pointerup', () => {
+        this.pauseText.visible = false;
         this.scene.pause();
-        this.scene.launch('pauseScene', { nowPlaying: music.nowPlaying, gameState: 'paused' });
+        this.scene.launch('pauseScene', { nowPlaying: this.music.nowPlaying, gameState: 'paused',  musicObj: this.music });
       });
       
       // resume handler
@@ -417,7 +397,7 @@
         let soundsArr = data.scene.sound.sounds; 
         for (let i = 0; i < soundsArr.length; i++){
           if (soundsArr[i].isPlaying){
-            music.nowPlaying = soundsArr[i];
+            this.music.nowPlaying = soundsArr[i];
           }
          }
         });
@@ -458,20 +438,19 @@
         player.anims.play('jump',true);
       }
       
-
+      // show pause text when returning from pause screen if it is not visible
+      if (!this.pauseText.visible){
+        this.pauseText.visible = true;
+      }
 
   
-      // show pause text when returning from pause screen if it is not visible
-      if (!pauseText.visible){
-        pauseText.visible = true;
-      }
+
    
 
       // timer
-      mins = 60-timer.repeatCount;
-      console.log(mins);
-      seconds = timer.getElapsedSeconds();
-      milli = (timer.elapsed * 10).toString();
+      mins = 60-this.timer.repeatCount;
+      seconds = this.timer.getElapsedSeconds();
+      milli = (this.timer.elapsed * 10).toString();
       
       if (mins < 10){
         mins = "0"+mins;
@@ -481,7 +460,7 @@
         milli = milli.substr(1,2);
       }
       if (seconds >= 10){
-        seconds = timer.getElapsedSeconds().toString().substr(0,2);
+        seconds = this.timer.getElapsedSeconds().toString().substr(0,2);
         milli = milli.substr(2,2);
       }
     
@@ -489,10 +468,10 @@
 
 
         // if there are no coins left, tell pause scene that the game is over and the player won
-        if (coinsLeft == 0){
-          pauseText.visible = false;
+        if (this.coinsLeft == 0){
+          this.pauseText.visible = false;
           this.scene.pause();
-          this.scene.launch("pauseScene", { nowPlaying: music.nowPlaying, gameState: 'win'});
+          this.scene.launch("pauseScene", {  musicObj: this.music, nowPlaying: this.music.nowPlaying, gameState: 'win', time: mins+seconds+milli});
         }
       
       } 
@@ -514,6 +493,8 @@
     init: function (data){
       this.nowPlaying = data.nowPlaying;
       this.gameState = data.gameState;
+      this.time = data.time;
+      this.music = data.musicObj;
     },
 
     preload: function(){
@@ -533,7 +514,7 @@
       // show what song is currently playing
       let songName;
       let nowPlayingText = this.add.text(16, canvas.height-40,"Now Playing: ", { fontFamily: 'monospace', fontSize: '16px', fill:'#000'});
-     
+      let songBank = {'bgm1':'falco','bgm2':'africa','bgm3':'bsb','bgm4':'tears4fears','bgm5':'igot5onit'};
       let findName = () =>{
         for (var key in songBank){
           if (this.nowPlaying.key === key){
@@ -599,7 +580,7 @@
       changeSongText.setInteractive();
       changeSongText.on('pointerup', () =>{
         this.nowPlaying.stop();
-        this.nowPlaying =  music['song'+ Phaser.Math.Between(1,5)];
+        this.nowPlaying =  this.music['song'+ Phaser.Math.Between(1,5)];
         this.nowPlaying.play();
         console.log("changed song to: " + this.nowPlaying.key);
         findName();
@@ -645,7 +626,7 @@
         killText();
       }  else if (this.gameState === 'crush'){
         gamePausedText.visible = false;
-        gameWinText.setText("You Lose!");
+        gameWinText.setText("Crushed!");
         gameWinText.visible = true;
         this.nowPlaying.stop();
         // don't let player select any of the normal menu options
