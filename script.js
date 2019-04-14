@@ -104,7 +104,7 @@
       let ladderGroup;
       
       // terrain
-      let bottomLayerGroup, sideSprite;
+      let bottomLayerGroup, sideSprite, rockLayerGroup;
 
       // keyboard listeners
       let ctrl = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL);
@@ -162,7 +162,8 @@
       bottomLayerGroup = this.physics.add.staticGroup();
       dirtLayerGroup = this.physics.add.staticGroup();
       ladderGroup = this.physics.add.staticGroup();
-          
+      rockLayerGroup = this.physics.add.group();
+      
       // draw top layer
       for (let x = 17.5; x < 1470; x+=35)
       {
@@ -186,6 +187,28 @@
             createSpriteGroup(x,1225,'tiles',[14],bottomLayerGroup,'bottomObj',false,1);
             x+=70;
           }
+
+      // generate rocks
+      let numRocks = 20;
+      let dirt = dirtLayerGroup.getChildren();
+      for (let i = 0; i < numRocks; i++){
+        let newRandom = Phaser.Math.RND.between(0,dirt.length-1);
+        let x = dirt[newRandom].x;
+        let y = dirt[newRandom].y;
+        dirt[newRandom].destroy();
+        let newRock =  createSpriteGroup(x,y,'tiles',[10],rockLayerGroup,'rockObj',true,1);
+        newRock.setOffset(-2,-2);
+         }
+
+      // check if player is crushed
+      let rockCrush = (player,group) => {
+        group.body.setVelocityX(0);
+        if (group.body.hitTest(player.x,player.y)) {
+         pauseText.visible = false;
+         this.scene.pause();
+         this.scene.launch("pauseScene", { nowPlaying: music.nowPlaying, gameState: 'crush'});
+       }
+      };
 
       // generate coins 
       coinQuantity = 10;
@@ -347,7 +370,10 @@
       this.physics.add.collider(player, bottomLayerGroup);
       this.physics.add.overlap(player, coinGroup, collectCoin, null, this);
       this.physics.add.overlap(player, ladderGroup, letsClimb );
-      
+      this.physics.add.collider(dirtLayerGroup, rockLayerGroup);
+      this.physics.add.collider(rockLayerGroup, sideSprite);
+      this.physics.add.collider(bottomLayerGroup, rockLayerGroup);
+      this.physics.add.collider(player, rockLayerGroup, rockCrush);
 
       // screen text
       scoreText = this.add.text(16, 10, 'Score: 0', { fontFamily: 'verdana', fontSize: '18px', fill: '#fff'});
@@ -601,7 +627,20 @@
         muteSoundsToggleText.visible = false;
         changeSongText.visible = false;
         restartGameOverText.visible = true; 
-      } 
+      }  else if (this.gameState === 'crush'){
+        gamePausedText.visible = false;
+        gameWinText.setText("You Lose!");
+        gameWinText.visible = true;
+        this.nowPlaying.stop();
+        // don't let player select any of the normal menu options
+        nowPlayingText.visible = false;
+        resumeText.visible = false;
+        restartText.visible = false;
+        pauseMusicToggleText.visible = false;
+        muteSoundsToggleText.visible = false;
+        changeSongText.visible = false;
+        restartGameOverText.visible = true;
+      }
     }
   });
   
