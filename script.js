@@ -163,7 +163,7 @@
       dirtLayerGroup = this.physics.add.staticGroup();
       ladderGroup = this.physics.add.staticGroup();
       rockLayerGroup = this.physics.add.group();
-      
+
       // draw top layer
       for (let x = 17.5; x < 1470; x+=35)
       {
@@ -603,43 +603,36 @@
         this.nowPlaying.stop();
         this.scene.start('mainGame');
       });
-     
+      
+      let killText = () =>{
+        resumeText.visible = false;
+        restartText.visible = false;
+        pauseMusicToggleText.visible = false;
+        muteSoundsToggleText.visible = false;
+        changeSongText.visible = false;
+        restartGameOverText.visible = true; 
+      };
+
       // check to see if the player won, lost, or paused and show appropriate text
       if (this.gameState ==='win'){
         gamePausedText.visible = false;
         gameWinText.setText("You Win!");
         gameWinText.visible = true;
         // don't let player select any of the normal menu options
-        resumeText.visible = false;
-        restartText.visible = false;
-        pauseMusicToggleText.visible = false;
-        muteSoundsToggleText.visible = false;
-        changeSongText.visible = false;
-        restartGameOverText.visible = true; 
+        killText();
       } else if (this.gameState === 'lose'){
         gamePausedText.visible = false;
         gameWinText.setText("You Lose!");
         gameWinText.visible = true;
         // don't let player select any of the normal menu options
-        resumeText.visible = false;
-        restartText.visible = false;
-        pauseMusicToggleText.visible = false;
-        muteSoundsToggleText.visible = false;
-        changeSongText.visible = false;
-        restartGameOverText.visible = true; 
+        killText();
       }  else if (this.gameState === 'crush'){
         gamePausedText.visible = false;
         gameWinText.setText("You Lose!");
         gameWinText.visible = true;
         this.nowPlaying.stop();
         // don't let player select any of the normal menu options
-        nowPlayingText.visible = false;
-        resumeText.visible = false;
-        restartText.visible = false;
-        pauseMusicToggleText.visible = false;
-        muteSoundsToggleText.visible = false;
-        changeSongText.visible = false;
-        restartGameOverText.visible = true;
+        killText();
       }
     }
   });
