@@ -208,7 +208,7 @@
 
       // generate coins 
       this.coinsLeft = 0;
-      let  coinQuantity = 1;
+      let  coinQuantity = 10;
       this.coinsLeft = coinQuantity;
       coinGroup = this.physics.add.staticGroup();
       let generateCoins = (coinQuantity) =>{ 
@@ -241,10 +241,8 @@
  
       // ping for coin locations
       xKey.on('up', () => { 
-        let allCoins = coinGroup.getChildren();
-        allCoins.forEach(a => {a.setDepth(4)});
-        distToCoin(player.x,player.y,250); });
-      
+        distToCoin(player.x,player.y,250); 
+      });
       
        // make the player
       this.player = this.physics.add.sprite(45,140,'man');
@@ -321,10 +319,9 @@
       };
       
       
-      
       // function to make ladder above player      
       // -- TODO -- make this less shitty =D
-      // current issue with looping through multiple ladders bogs the game down a lot. 
+      // this currently isn't working and that's okay, for now...
       let createLadder = () =>{
         let ladders = ladderGroup.getChildren();
 
@@ -392,7 +389,7 @@
       this.pauseText.on('pointerup', () => {
         this.pauseText.visible = false;
         this.scene.pause();
-        this.scene.launch('pauseScene', { nowPlaying: this.music.nowPlaying, gameState: 'paused',  musicObj: this.music });
+        this.scene.launch('pauseScene', { coinCollectSound: coinCollectSound, nowPlaying: this.music.nowPlaying, gameState: 'paused',  musicObj: this.music });
       });
       
       // resume handler
@@ -406,12 +403,9 @@
          }
         });
 
-
-
     },
     
     update: function(){
-      
     
       // controls
       if (cursors.left.isDown && player.body.onFloor()){
@@ -448,9 +442,6 @@
       }
 
   
-
-   
-
       // timer
       mins = 60-this.timer.repeatCount;
       seconds = this.timer.getElapsedSeconds();
@@ -475,7 +466,7 @@
         if (this.coinsLeft == 0){
           this.pauseText.visible = false;
           this.scene.pause();
-          this.scene.launch("pauseScene", {  musicObj: this.music, nowPlaying: this.music.nowPlaying, gameState: 'win', time: mins+":"+seconds+":"+milli});
+          this.scene.launch("pauseScene", {  musicObj: this.music, nowPlaying: this.music.nowPlaying, gameState: 'win', time: mins+":"+seconds+":"+milli });
         }
       
       } 
@@ -519,7 +510,7 @@
       // load background image (just a white rectangle)
       pauseOverlay = this.add.image(0,0, 'pauseOverlay').setOrigin(0,0).setAlpha(0.6);
       
-
+      coinCollectSound = this.coinCollectSound;
 
       // show what song is currently playing
       let songName;
@@ -534,156 +525,102 @@
         }
       };
       findName();
-
-      
-
-      // create menu items 
-      // TODO make buttons interactive
-      
-
-    
-    //   // resume game from pause
-    //   let resumeText = this.add.text( 343, 10, 'Resume', { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
-    //   resumeText.setInteractive();
-    //   resumeText.on('pointerup', () =>{
-    //     this.scene.resume('mainGame');
-    //     this.scene.sleep();
-    //   });
-      
-    //  // restart game from pause
-    //   let restartText = this.add.text(343, resumeText.y+30, "Restart",  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
-    //   restartText.setInteractive();
-    //   restartText.on('pointerup', () =>{
-    //     this.nowPlaying.stop();
-    //     this.scene.start('mainGame');
-    //   });
-
-    //   // toggle background music pause
-    //   let pauseMusicToggleText = this.add.text(343, restartText.y+30, "Music: Playing" ,  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
-    //   pauseMusicToggleText.setInteractive();
-    //   pauseMusicToggleText.on('pointerup', () =>{
-    //     console.log(this.nowPlaying.key, this.nowPlaying);
-    //     if (this.nowPlaying.isPlaying){
-    //       console.log("pausing music...");
-    //       this.nowPlaying.pause();
-    //       pauseMusicToggleText.setText("Music: Paused");        
-    //     } else if (this.nowPlaying.isPaused) {
-    //         console.log("unpausing music...");
-    //         this.nowPlaying.resume();
-    //         pauseMusicToggleText.setText("Music: Playing");
-    //     }
-    //   });
-
-    //   // mute sound fx
-    //   let muteSoundsToggleText = this.add.text(343, pauseMusicToggleText.y+30, "Sounds: On" ,  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
-    //   muteSoundsToggleText.setInteractive();
-    //   muteSoundsToggleText.on('pointerup', () =>{
-    //    if (coinCollectSound.config.mute){
-    //      coinCollectSound.config.mute = false;
-    //      muteSoundsToggleText.setText("Sounds: Off");
-    //    } else if (!coinCollectSound.config.mute){
-    //      coinCollectSound.config.mute = true;
-    //      muteSoundsToggleText.setText("Sounds: On");
-    //      }
-    //   });
-
-      // change background music to new random song
-      // let changeSongText = this.add.text(343, muteSoundsToggleText.y+30, "Change Song" ,  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});
-      // changeSongText.setInteractive();
-      // changeSongText.on('pointerup', () =>{
-      //   this.nowPlaying.stop();
-      //   this.nowPlaying =  this.music['song'+ Phaser.Math.Between(1,5)];
-      //   this.nowPlaying.play();
-      //   console.log("changed song to: " + this.nowPlaying.key);
-      //   findName();
-      // });
       
       // let player know game is paused
-      let gamePausedText = this.add.text ( (canvas.width/2)-100, (canvas.height/2)-250, ' Paused', { fontFamily: 'verdana', fontSize: '48px', fill: '#000'} );
+      gameStatusText = this.add.text ( (canvas.width/2)-100, (canvas.height/2)-250, '', { fontFamily: 'verdana', fontSize: '48px', fill: '#000'} );
+      if (this.gameState == 'paused'){
+        gameStatusText.setText(' Paused');
+      }
       
+      // pause menu buttons
 
-      // add buttons
-      resumeButton = this.add.image( canvas.width/2,gamePausedText.y+160, 'resumeButton').setScale(0.25);
+      // resume game button
+      resumeButton = this.add.image( canvas.width/2,gameStatusText.y+160, 'resumeButton').setScale(0.25);
+      resumeButton.setInteractive();
+      resumeButton.on('pointerup', () =>{
+        this.scene.resume('mainGame');
+        this.scene.sleep();
+      });
+      
+      // restart game button
       restartButton = this.add.image(canvas.width/2, resumeButton.y+60, 'restartButton').setScale(0.25);
       restartButton.setInteractive();
       restartButton.on('pointerup', () =>{
         this.nowPlaying.stop();
         this.scene.start('mainGame');
       });
+      
+      // toggle background music button
       toggleMusicButton = this.add.image(restartButton.x,restartButton.y+60, 'toggleMusic').setScale(0.25);
+      toggleMusicButton.setInteractive();
+      toggleMusicButton.on('pointerup', () =>{
+        console.log(this.nowPlaying.key, this.nowPlaying);
+        if (this.nowPlaying.isPlaying){
+          this.nowPlaying.pause();
+        } else if (this.nowPlaying.isPaused) {
+            this.nowPlaying.resume();
+        }
+      });
+
+      // toggle sound fx button
       toggleSoundsButton = this.add.image(toggleMusicButton.x,toggleMusicButton.y+60,'toggleSounds').setScale(0.25);
       toggleSoundsButton.setInteractive();
       toggleSoundsButton.on('pointerup', () =>{
-       if (this.coinCollectSound.config.mute){
-         this.coinCollectSound.config.mute = false;
+       if (coinCollectSound.config.mute){
+         coinCollectSound.config.mute = false;
          toggleSoundsButton.setTint(0xA0A0A0);
        } else if (!this.coinCollectSound.config.mute){
-         this.coinCollectSound.config.mute = true;
-         toggleSoundsButton.setText("Sounds: On");
+         coinCollectSound.config.mute = true;
+         toggleSoundsButton.clearTint();
+        
          }
       });
 
+      // change background music button
       changeSongButton = this.add.image(toggleSoundsButton.x,toggleSoundsButton.y+60,'changeSong').setScale(0.25);
-
-
-
-      // let player know they won
-      let gameWinText = this.add.text ( (canvas.width/2)-100, canvas.height/2, ' You Win!', { fontFamily: 'verdana', fontSize: '48px', fill: '#000'} );
-      gameWinText.visible = false;
-      
-      // tell the player how long it took to collect the coins
-      let time = this.time;  
-      let timeText = this.add.text( gameWinText.x-20, gameWinText.y+70, 'Your Time: '+time, { fontFamily: 'verdana', fontSize: '24px', fill: '#000'} );
-      timeText.visible = false;
-
-      // show the restart text when game is over
-      let restartGameOverText = this.add.text(gameWinText.x+75, gameWinText.y+130, "Restart",  { fontFamily: 'verdana', fontSize: '18px', fill: '#000'});     
-      restartGameOverText.visible = false; 
-      restartGameOverText.setInteractive();
-      restartGameOverText.on('pointerup', () =>{
+      changeSongButton.setInteractive();
+      changeSongButton.on('pointerup', () =>{
         this.nowPlaying.stop();
-        this.scene.start('mainGame');
+        this.nowPlaying =  this.music['song'+ Phaser.Math.Between(1,5)];
+        this.nowPlaying.play();
+        console.log("changed song to: " + this.nowPlaying.key);
+        findName();
       });
 
+    
+      // tell the player how long it took to collect the coins
+      let time = this.time;  
+      let timeText = this.add.text( gameStatusText.x-20, gameStatusText.y+70, 'Your Time: '+time, { fontFamily: 'verdana', fontSize: '24px', fill: '#000'} );
+      timeText.visible = false;
 
-      console.log(restartButton);
-      
-      let killText = () =>{
-        resumeText.visible = false;
-        restartText.visible = false;
-        pauseMusicToggleText.visible = false;
-        muteSoundsToggleText.visible = false;
-        changeSongText.visible = false;
-        restartGameOverText.visible = true; 
-      };
-
-
-      
-      
-     
-
+        
       // check to see if the player won, lost, or paused and show appropriate text
       if (this.gameState ==='win'){
-        gamePausedText.visible = false;
-        gameWinText.setText("You Win!");
-        gameWinText.visible = true;
+        gameStatusText.setText("You Win!");
         timeText.visible = true;
-        // don't let player select any of the normal menu options
-        killText();
+        resumeButton.removeInteractive();
       } else if (this.gameState === 'lose'){
-        gamePausedText.visible = false;
-        gameWinText.setText("You Lose!");
-        gameWinText.visible = true;
-        // don't let player select any of the normal menu options
-        killText();
-      }  else if (this.gameState === 'crush'){
-        gamePausedText.visible = false;
-        gameWinText.setText("Crushed!");
-        gameWinText.visible = true;
+        gameStatusText.setText("You Lose!");   // a relic from a more simple time. Keeping this in just in case. 
+        resumeButton.removeInteractive();
+      } else if (this.gameState === 'crush'){
+        gameStatusText.setText("Crushed!");
         this.nowPlaying.stop();
-        // don't let player select any of the normal menu options
-        killText();
+        resumeButton.removeInteractive();
       }
+    },
+
+    update: function () {
+      // grey out toggle buttons for music and sound when they are disabled
+      if (this.coinCollectSound !== undefined){
+        if (this.coinCollectSound.config.mute){
+          toggleSoundsButton.setTint(0xA0A0A0);
+        } else if (!this.coinCollectSound.config.mute){
+          toggleSoundsButton.clearTint();
+          }
+      }
+
+       this.nowPlaying.isPlaying?toggleMusicButton.clearTint():toggleMusicButton.setTint(0xA0A0A0);
+
     }
   });
   
