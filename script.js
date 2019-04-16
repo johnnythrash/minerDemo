@@ -173,6 +173,9 @@
             x+=70;
           }
 
+      bottomGroup = bottomLayerGroup.getChildren();
+      bottomGroup.forEach(a=> {a.setSize(70,70); a.setOffset(-2,-2);});
+
       // generate rocks
       let numRocks = 20;
       let dirt = dirtLayerGroup.getChildren();
@@ -331,6 +334,7 @@
             newLadder.body.height = 35;
             newLadder.body.width = 35;
             
+            console.log("("+newLadder.x+","+newLadder.y+")");
         
           }
           for (i =0; i < ladders.length; i++){
@@ -340,6 +344,7 @@
             let newLadder = ladderGroup.create(player.x,player.y,'ladder');
             newLadder.body.height = 35;
             newLadder.body.width = 35;
+            console.log("("+newLadder.x+","+newLadder.y+")");
             }  
           }
         }
@@ -554,7 +559,6 @@
       toggleMusicButton = this.add.image(restartButton.x,restartButton.y+60, 'toggleMusic').setScale(0.25);
       toggleMusicButton.setInteractive();
       toggleMusicButton.on('pointerup', () =>{
-        console.log(this.nowPlaying.key, this.nowPlaying);
         if (this.nowPlaying.isPlaying){
           this.nowPlaying.pause();
         } else if (this.nowPlaying.isPaused) {
@@ -634,7 +638,7 @@ const config = {
     default: 'arcade',
     arcade: {
       gravity: { y:300 },
-      debug: false
+      debug: true
     }
   },
   scene: [MainGame, PauseScene]
