@@ -321,21 +321,19 @@
         }
       };
       
+   
       
       // function to make ladder above player      
       // -- TODO -- make this less shitty =D
-      // this currently isn't working and that's okay, for now...
+      ladderGroup.create(0,-200,'ladder');
       let createLadder = () =>{
         let ladders = ladderGroup.getChildren();
         console.log(player.y);
          if (player.y > 210){
-          if (ladders.length == 0){
+          if (ladders.length == 1){
             let newLadder = ladderGroup.create(player.x,player.y-35,'ladder');
             newLadder.body.height = 35;
             newLadder.body.width = 35;
-            
-            console.log("("+newLadder.x+","+newLadder.y+")");
-        
           }
           for (i =0; i < ladders.length; i++){
             let playerX = player.x, playerY = player.y;
@@ -344,7 +342,6 @@
             let newLadder = ladderGroup.create(player.x,player.y,'ladder');
             newLadder.body.height = 35;
             newLadder.body.width = 35;
-            console.log("("+newLadder.x+","+newLadder.y+")");
             }  
           }
         }
