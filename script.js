@@ -186,8 +186,8 @@
         dirt[newRandom].destroy();
         let newRock = rockLayerGroup.create(x+5,y,'boulder');
         newRock.body.height = 35;
-        newRock.body.width = 35;
-        newRock.setOffset(10,-2);
+        newRock.body.width = 30;
+        newRock.setOffset(15,-2);
         newRock.setMass(100);
         newRock.enableBody();
          }
@@ -327,7 +327,7 @@
       // this currently isn't working and that's okay, for now...
       let createLadder = () =>{
         let ladders = ladderGroup.getChildren();
-
+        console.log(player.y);
          if (player.y > 210){
           if (ladders.length == 0){
             let newLadder = ladderGroup.create(player.x,player.y-35,'ladder');
