@@ -460,7 +460,7 @@ export default class MainGame extends Phaser.Scene{
       seconds = this.timer.getElapsedSeconds().toString().substr(0,2);
       milli = milli.substr(2,2);
     }
-
+    this.totalTime = mins+seconds+milli;
     this.timerText.setText('Time: ' + mins + ":" + seconds + ":" + milli);
 
 
@@ -468,7 +468,7 @@ export default class MainGame extends Phaser.Scene{
       if (this.coinsLeft == 0){
         this.pauseText.visible = false;
         this.scene.pause();
-        this.scene.launch("PauseScene", {  musicObj: this.music, nowPlaying: this.music.nowPlaying, gameState: 'win', time: mins+":"+seconds+":"+milli });
+        this.scene.launch("PauseScene", {  musicObj: this.music, nowPlaying: this.music.nowPlaying, gameState: 'win', score: this.totalTime, time: mins + ":" + seconds + ":" + milli });
       }
 
     }

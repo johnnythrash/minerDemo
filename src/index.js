@@ -1,5 +1,6 @@
 import 'phaser';
 import BestTime from './scenes/BestTime.js';
+import TitleScene from './scenes/TitleScene.js';
 import MainGame from './scenes/MainGame.js';
 import PauseScene from './scenes/PauseScene.js';
 
@@ -16,7 +17,7 @@ const config = {
       debug: false
     }
   },
-  scene: [MainGame, PauseScene]
+  scene: [TitleScene, MainGame, PauseScene]
 };
 
 // game
