@@ -40,7 +40,7 @@ export default class PauseScene extends Phaser.Scene{
       // show what song is currently playing
       let songName;
       let nowPlayingText = this.add.text(16, canvas.height-40,"Now Playing: ", { fontFamily: 'monospace', fontSize: '16px', fill:'#000'});
-      let songBank = {'bgm1':'falco','bgm2':'africa','bgm3':'bsb','bgm4':'tears4fears','bgm5':'igot5onit'};
+      let songBank = {'bgm1':'falco','bgm2':'africa','bgm3':'bsb','bgm4':'tears4fears','bgm5':'igot5onit', 'bgm6': 'takeonme'};
       let findName = () =>{
         for (let key in songBank){
           if (this.nowPlaying.key === key){
@@ -109,7 +109,7 @@ export default class PauseScene extends Phaser.Scene{
       this.changeSongButton.setInteractive();
       this.changeSongButton.on('pointerup', () =>{
         this.nowPlaying.stop();
-        this.nowPlaying =  this.music['song'+ Phaser.Math.Between(1,5)];
+        this.nowPlaying =  this.music['song'+ Phaser.Math.Between(1,6)];
         this.nowPlaying.play();
         console.log("changed song to: " + this.nowPlaying.key);
         findName();

@@ -71,6 +71,7 @@ export default class MainGame extends Phaser.Scene{
     this.load.audio('bgm3', 'assets/music/bsbiwantit.mp3');
     this.load.audio('bgm4', 'assets/music/everybody_wants.mp3');
     this.load.audio('bgm5', 'assets/music/fiveonit.mp3');
+    this.load.audio('bgm6', 'assets/music/takeonme.mp3');
     this.load.image('bg', 'assets/backgroundImage.png');
     this.load.image('side','assets/backgroundImage.png');
     this.load.image('coin','assets/sprites/star-coin.png');
@@ -100,7 +101,7 @@ export default class MainGame extends Phaser.Scene{
 
     // add background music
     this.music = {};
-    for (let i = 1; i < 6; i++){
+    for (let i = 1; i < 7; i++){
       this.music['song'+i] = this.sound.add('bgm'+i, {loop: true});
     }
 
