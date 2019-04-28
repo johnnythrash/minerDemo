@@ -249,7 +249,8 @@ export default class MainGame extends Phaser.Scene{
      // make the player
     this.player = this.physics.add.sprite(45,140,'man');
     let player = this.player;
-    player.setCollideWorldBounds(false).setScale(2).setSize(15,15).setOffset(15,20);
+    player.setCollideWorldBounds(false).setScale(1.5,1).setSize(15,15).setOffset(15,20);
+    
 
     // player animations
     this.anims.create({
