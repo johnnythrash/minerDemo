@@ -116,7 +116,8 @@ export default class PauseScene extends Phaser.Scene{
         findName();
       });
 
-
+      // check high score and store to server
+      // TODO - finish this and implement it
     //  let checkHighScore = (score) =>{
     //   console.log("game won, checking score against database...");
     //     fetch('http://localhost:9999/time')
@@ -124,10 +125,33 @@ export default class PauseScene extends Phaser.Scene{
     //         return response.json();
     //       })
     //       .then(json => {
-    //         // TODO -- compare this against scores on server 
+    //         let newArr = [];
+           
+    //         for (let x = 0; x < json.length; x++){
+    //           newArr.push(json[x].time);
+    //         }
+           
+    //         let betterTimes = newArr.filter((a,score)=>{
+    //           return a < score;
+    //         });
+
+    //         if(betterTimes.length == 0){
+    //           fetch('http://media-storage:9999/time', {
+
+    //             method: "POST",
+    //             mode: "cors",
+    //             headers: {
+    //               "Content-Type": "application/json"
+    //             },
+    //             body: JSON.stringify({"time": score })
+
+    //           });
+    //         }
+
     //       });
 
-    //   }
+    //   };
+
       // tell the player how long it took to collect the coins
       let time = this.time;
       let timeText = this.add.text( gameStatusText.x-20, gameStatusText.y+70, 'Your Time: '+time, { fontFamily: 'verdana', fontSize: '24px', fill: '#000'} );
@@ -136,7 +160,7 @@ export default class PauseScene extends Phaser.Scene{
       // check to see if the player won, lost, or paused and show appropriate text
       if (this.gameState ==='win'){
         
-        checkHighScore(score);
+        //checkHighScore(score);
         gameStatusText.setText("You Win!");
         timeText.visible = true;
         resumeButton.removeInteractive();
