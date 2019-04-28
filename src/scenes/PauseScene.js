@@ -162,9 +162,11 @@ export default class PauseScene extends Phaser.Scene{
         
         //checkHighScore(score);
         gameStatusText.setText("You Win!");
+        this.nowPlaying.stop();
         timeText.visible = true;
         resumeButton.removeInteractive();
       } else if (this.gameState === 'lose'){
+        this.nowPlaying.stop();
         gameStatusText.setText("You Lose!");   // a relic from a more simple time. Keeping this in just in case.
         resumeButton.removeInteractive();
       } else if (this.gameState === 'crush'){
