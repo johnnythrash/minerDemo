@@ -103,12 +103,11 @@ export default class PauseScene extends Phaser.Scene{
 
          }
       });
-
+    
       // change background music button
-      let changeSongButton = this.changeSongButton;
-      changeSongButton = this.add.image(this.toggleSoundsButton.x,this.toggleSoundsButton.y+60,'changeSong').setScale(0.25);
-      changeSongButton.setInteractive();
-      changeSongButton.on('pointerup', () =>{
+      this.changeSongButton = this.add.image(this.toggleSoundsButton.x,this.toggleSoundsButton.y+60,'changeSong').setScale(0.25);
+      this.changeSongButton.setInteractive();
+      this.changeSongButton.on('pointerup', () =>{
         this.nowPlaying.stop();
         this.nowPlaying =  this.music['song'+ Phaser.Math.Between(1,5)];
         this.nowPlaying.play();
@@ -116,6 +115,11 @@ export default class PauseScene extends Phaser.Scene{
         findName();
       });
 
+      // hide unnecessary buttons when game is over 
+      let hideButtons = (...args) => {
+        args.forEach(a=>{a.visible= false;});
+      };
+  
       // check high score and store to server
       // TODO - finish this and implement it
     //  let checkHighScore = (score) =>{
@@ -159,17 +163,19 @@ export default class PauseScene extends Phaser.Scene{
       
       // check to see if the player won, lost, or paused and show appropriate text
       if (this.gameState ==='win'){
-        
+        hideButtons(this.toggleMusicButton,this.toggleSoundsButton,this.changeSongButton,resumeButton);
         //checkHighScore(score);
         gameStatusText.setText("You Win!");
         this.nowPlaying.stop();
         timeText.visible = true;
         resumeButton.removeInteractive();
       } else if (this.gameState === 'lose'){
+        hideButtons(this.toggleMusicButton,this.toggleSoundsButton,this.changeSongButton,resumeButton);
         this.nowPlaying.stop();
         gameStatusText.setText("You Lose!");   // a relic from a more simple time. Keeping this in just in case.
         resumeButton.removeInteractive();
       } else if (this.gameState === 'crush'){
+        hideButtons(this.toggleMusicButton,this.toggleSoundsButton,this.changeSongButton,resumeButton);
         gameStatusText.setText("Crushed!");
         this.nowPlaying.stop();
         resumeButton.removeInteractive();
@@ -186,6 +192,7 @@ export default class PauseScene extends Phaser.Scene{
         this.toggleSoundsButton.clearTint();
         }
     }
+
 
     this.nowPlaying.isPlaying?this.toggleMusicButton.clearTint():this.toggleMusicButton.setTint(0xA0A0A0);
     
