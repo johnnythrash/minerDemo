@@ -55,6 +55,6 @@ key | function
 ## todo
 
 - new art
-- animations for digging and climbing
+- animations for ~~digging~~ and climbing
 - store best times
 - fix lots of bugs
