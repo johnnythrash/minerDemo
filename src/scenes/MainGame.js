@@ -85,6 +85,9 @@ export default class MainGame extends Phaser.Scene{
   create ()
   {
 
+    // global state for digging
+    this.registry.set('isDigging', false);
+
     // ladders
     let ladderGroup;
 
@@ -194,20 +197,20 @@ export default class MainGame extends Phaser.Scene{
 
 
     // check if player is crushed
+    // todo - fix this so animation plays, pause, then on to new game
     let rockCrush = (player,group) => {
       group.body.setVelocityX(0);
       if (group.body.hitTest(player.x,player.y)) {
-       this.anims.remove('idle');
-       this.anims.pauseAll();
-       this.anims.play('crushed', player);
-       player.on('animationcomplete', ()=> {
-        this.pauseText.visible = false;
-        this.scene.pause();
-        this.scene.launch("PauseScene", { nowPlaying: this.music.nowPlaying, gameState: 'crush', musicObj: this.music, fx: this.fx});
-       }, this);
-
+           this.player.anims.play('crushed', true);
+           this.player.on("animationcomplete-crushed", ()=>{
+            this.pauseText.visible = false;
+            this.scene.pause();
+            this.scene.launch("PauseScene", { nowPlaying: this.music.nowPlaying, gameState: 'crush', musicObj: this.music, fx: this.fx});
+           });
       }
-     };
+    };
+       
+     
 
     // generate coins
     this.coinsLeft = 0;
@@ -250,6 +253,7 @@ export default class MainGame extends Phaser.Scene{
      // make the player
     this.player = this.physics.add.sprite(45,140,'man');
     let player = this.player;
+    this.player.swinging = false;
     player.setCollideWorldBounds(false).setScale(1.5,1).setSize(15,15).setOffset(15,20);
     
 
@@ -267,10 +271,11 @@ export default class MainGame extends Phaser.Scene{
     });
     this.anims.create({
       key: 'swipe',
-      frames: this.anims.generateFrameNumbers('man', { start: 26, end: 29}),
+      frames: this.anims.generateFrameNumbers('man', {start: 47, end: 52}),
       frameRate: 10,
-      repeat: -1
-    });
+      repeat: 0,
+
+      });
     this.anims.create({
       key: 'crouch',
       frames: [{key:'man', frame: 59}],
@@ -285,7 +290,7 @@ export default class MainGame extends Phaser.Scene{
     this.anims.create({
       key: 'crushed',
       frames: this.anims.generateFrameNumbers('man', { start:64, end: 68}),
-      duration: 20000
+      frameRate: 1
     });
 
     // camera views
@@ -301,13 +306,13 @@ export default class MainGame extends Phaser.Scene{
       let touching = group.body.touching;
       if (this.cursors.shift.isDown){
         if (touching.left === true && this.cursors.right.isDown) {
-            group.disableBody(this,this);
+          group.disableBody(this,this);
         } else if (touching.up === true && this.cursors.down.isDown){
-            group.disableBody(this,this);
+          group.disableBody(this,this);
         } else if (touching.right === true && this.cursors.left.isDown){
-            group.disableBody(this,this);
+          group.disableBody(this,this);
         } else if (touching.down === true && this.cursors.up.isDown){
-            group.disableBody(this,this);
+          group.disableBody(this,this);
         }
         }
       };
@@ -329,8 +334,7 @@ export default class MainGame extends Phaser.Scene{
     ladderGroup.create(0,-200,'ladder');
     let createLadder = () =>{
       let ladders = ladderGroup.getChildren();
-      console.log(player.y);
-       if (player.y > 210){
+      if (player.y > 210){
         if (ladders.length == 1){
           let newLadder = ladderGroup.create(player.x,player.y-35,'ladder');
           newLadder.body.height = 35;
@@ -410,37 +414,55 @@ export default class MainGame extends Phaser.Scene{
 
   update ()
   {
-
     // controls
+
+    if (this.cursors.shift.isDown){
+      this.player.swinging = true;
+      this.player.anims.play('swipe', true);
+    } else {
+      this.player.swinging = false;
+    }
+
     if (this.cursors.left.isDown && this.player.body.onFloor()){
       this.player.body.setVelocityX(-200);
-      this.player.anims.play('walk',true);
+      if (!this.player.swinging){
+        this.player.anims.play('walk',true);
+      }
       this.player.flipX = true;
     } else if (this.cursors.left.isDown){
-      this.player.body.setVelocityX(-200);
-      this.player.flipX = true;
+        this.player.body.setVelocityX(-200);
+        this.player.flipX = true;
     } else if (this.cursors.right.isDown && this.player.body.onFloor()){
-      this.player.body.setVelocityX(200);
-      this.player.anims.play('walk',true);
-      this.player.flipX = false;
+        this.player.body.setVelocityX(200);
+        if (!this.player.swinging){
+          this.player.anims.play('walk',true);
+        }
+        this.player.flipX = false;
     } else if (this.cursors.right.isDown){
-      this.player.body.setVelocityX(200);
-      this.player.flipX = false;
+        this.player.body.setVelocityX(200);
+        this.player.flipX = false;
     } else if (this.cursors.down.isDown){
-      this.player.anims.play('crouch',true);
+        if (!this.player.swinging){
+          this.player.anims.play('crouch',true);
+        }
     } else{
-    this.player.body.setVelocityX(0);
-    this.player.anims.play('idle', true);
+      this.player.body.setVelocityX(0);
+      if (!this.player.swinging){
+        this.player.anims.play('idle', true);
+      } 
     }
+    
     if (( this.cursors.space.isDown || this.cursors.up.isDown) && this.player.body.onFloor()){
       this.player.setVelocityY(-300);
       this.player.anims.play('jump',true);
     }
     if (!this.player.body.onFloor()){
-      this.player.anims.play('jump',true);
+      if (!this.player.swinging){
+        this.player.anims.play('jump',true);
+      } 
     }
-
-    // show pause text when returning from pause screen if it is not visible
+  
+     // show pause text when returning from pause screen if it is not visible
     if (!this.pauseText.visible){
       this.pauseText.visible = true;
     }
