@@ -38,7 +38,7 @@ run:
 #### 3. start development server
 
    run:  
-  `$ npm start run:dev`
+  `$ npm run start:dev`
   
   you can now access the game from a browser at `http://localhost:8082` or `http://your.computers.ip:8082`
 
