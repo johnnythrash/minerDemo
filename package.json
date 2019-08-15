@@ -1,21 +1,22 @@
 {
-  "name": "bitcoinminer",
-  "version": "0.0.1",
+  "name": "minerdemo",
+  "version": "0.1.0",
   "description": "a fun game",
   "main": "script.js",
   "scripts": {
-    "dev": "webpack-dev-server --port 8082 --host 0.0.0.0"
+    "dev": "webpack-dev-server --port 8082 --host 0.0.0.0",
+	  "build":"webpack"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/johnnythrash/bitcoinminer.git"
+    "url": "git+https://github.com/johnnythrash/minerdemo.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/johnnythrash/bitcoinminer/issues"
+    "url": "https://github.com/johnnythrash/minerdemo/issues"
   },
-  "homepage": "https://github.com/johnnythrash/bitcoinminer#readme",
+  "homepage": "https://github.com/johnnythrash/minerdemo#readme",
   "devDependencies": {
     "@babel/core": "^7.4.3",
     "@babel/preset-env": "^7.4.3",
