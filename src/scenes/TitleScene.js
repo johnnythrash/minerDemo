@@ -18,7 +18,7 @@ export default class TitleScene extends Phaser.Scene {
       
       // game name text
       let canvas = this.sys.game.canvas;     
-      let titleText = this.add.text ( (canvas.width/2)-150, (canvas.height/2)-250, 'bitcoinMiner', { fontFamily: 'verdana', fontSize: '48px', fill: '#000'} );
+      let titleText = this.add.text ( (canvas.width/2)-150, (canvas.height/2)-250, 'minerDemo', { fontFamily: 'verdana', fontSize: '48px', fill: '#000'} );
    
       // start game button
       let startButton = this.add.image((canvas.width/2)-10, titleText.y+160, 'startButton').setScale(0.25);
