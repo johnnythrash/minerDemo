@@ -4,7 +4,7 @@ run through the map, dig up dirt, and collect the coins hidden behind them. see 
 
 ## about
 
-- currently in development.
+- ~currently in development.~
 - developed with [thequietriot](https://github.com/thequietriot).
 - made with [phaser 3](https://www.phaser.io/phaser3).
 - this is our first game and we're doing this in our spare time so it may take forever to finish.
